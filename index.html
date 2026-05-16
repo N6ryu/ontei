@@ -9,71 +9,215 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     :root {
-      --primary: #4ecdc4; --secondary: #2c3e6b; --accent: #ff6b6b; --success: #2ed573; --warn: #ffd32a;
-      --bg: #f0f4ff; --card: #ffffff; --text: #2d3436; --muted: #888fa3;
+      --primary: #4ecdc4;
+      --secondary: #2c3e6b;
+      --accent: #ff6b6b;
+      --success: #2ed573;
+      --perfect: #2ea39b;
+      --warn: #ffd32a;
+      --bg: #f0f4ff;
+      --card: #ffffff;
+      --text: #2d3436;
+      --muted: #888fa3;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Zen Maru Gothic', sans-serif; background: var(--bg);
-      background-image: radial-gradient(circle at 20% 20%, #dde8ff 0%, transparent 50%), radial-gradient(circle at 80% 80%, #d4f5f2 0%, transparent 50%);
-      color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 16px;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      background: var(--bg);
+      background-image: radial-gradient(circle at 20% 20%, #dde8ff 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, #d4f5f2 0%, transparent 50%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 16px;
     }
     .screen { display: none; width: 100%; max-width: 460px; animation: fadeIn 0.35s ease; }
     .screen.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    .card { background: var(--card); border-radius: 28px; padding: 28px 24px; box-shadow: 0 8px 32px rgba(44,62,107,0.10), 0 1.5px 4px rgba(44,62,107,0.06); margin-bottom: 16px; border: 1.5px solid rgba(78,205,196,0.15); }
-    .app-title { font-size: 28px; font-weight: 700; color: var(--secondary); letter-spacing: 0.03em; margin-bottom: 4px; }
+
+    .card {
+      background: var(--card);
+      border-radius: 28px;
+      padding: 28px 24px;
+      box-shadow: 0 8px 32px rgba(44,62,107,0.10), 0 1.5px 4px rgba(44,62,107,0.06);
+      margin-bottom: 16px;
+      border: 1.5px solid rgba(78,205,196,0.15);
+    }
+
+    .app-title {
+      font-size: 28px; font-weight: 700; color: var(--secondary);
+      letter-spacing: 0.03em; margin-bottom: 4px;
+    }
     .app-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+
     label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; margin-top: 14px; font-weight: 700; letter-spacing: 0.05em; }
-    input, select { width: 100%; padding: 13px 16px; border-radius: 14px; border: 1.5px solid #e0e6f0; font-size: 15px; font-family: inherit; background: #f8faff; color: var(--text); outline: none; transition: border 0.2s; }
+    input, select {
+      width: 100%; padding: 13px 16px;
+      border-radius: 14px; border: 1.5px solid #e0e6f0;
+      font-size: 15px; font-family: inherit;
+      background: #f8faff; color: var(--text);
+      outline: none; transition: border 0.2s;
+    }
     input:focus, select:focus { border-color: var(--primary); background: white; }
-    .btn { display: block; width: 100%; padding: 16px; border-radius: 16px; border: none; background: linear-gradient(135deg, var(--primary), #36b8b0); color: white; font-weight: 700; font-family: inherit; cursor: pointer; font-size: 17px; margin-top: 18px; box-shadow: 0 5px 0 #2ea39b, 0 8px 20px rgba(78,205,196,0.3); transition: transform 0.1s, box-shadow 0.1s; letter-spacing: 0.03em; }
+
+    .btn {
+      display: block; width: 100%; padding: 16px;
+      border-radius: 16px; border: none;
+      background: linear-gradient(135deg, var(--primary), #36b8b0);
+      color: white; font-weight: 700; font-family: inherit;
+      cursor: pointer; font-size: 17px; margin-top: 18px;
+      box-shadow: 0 5px 0 #2ea39b, 0 8px 20px rgba(78,205,196,0.3);
+      transition: transform 0.1s, box-shadow 0.1s;
+      letter-spacing: 0.03em;
+    }
     .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #2ea39b; }
-    .btn-level { background: linear-gradient(135deg, var(--secondary), #3d5498); box-shadow: 0 5px 0 #1a2a55, 0 8px 20px rgba(44,62,107,0.2); font-size: 15px; margin-top: 10px; }
+
+    .btn-level {
+      background: linear-gradient(135deg, var(--secondary), #3d5498);
+      box-shadow: 0 5px 0 #1a2a55, 0 8px 20px rgba(44,62,107,0.2);
+      font-size: 15px; margin-top: 10px;
+    }
     .btn-level:active { box-shadow: 0 2px 0 #1a2a55; }
-    .btn-back { background: linear-gradient(135deg, #747d8c, #57606f); box-shadow: 0 4px 0 #3d4451; font-size: 14px; margin-top: 10px; }
+    .btn-back {
+      background: linear-gradient(135deg, #747d8c, #57606f);
+      box-shadow: 0 4px 0 #3d4451;
+      font-size: 14px; margin-top: 10px;
+    }
     .btn-back:active { box-shadow: 0 2px 0 #3d4451; }
-    .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .q-badge { background: var(--bg); color: var(--secondary); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1.5px solid #dde5f5; }
-    .score-badge { background: linear-gradient(135deg, var(--secondary), #3d5498); color: white; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; }
-    .note-display { display: flex; justify-content: space-around; align-items: center; margin: 16px 0 10px; }
+
+    /* ─── GAME SCREEN ─── */
+    .game-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .q-badge {
+      background: var(--bg); color: var(--secondary);
+      padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700;
+      border: 1.5px solid #dde5f5;
+    }
+    .score-badge {
+      background: linear-gradient(135deg, var(--secondary), #3d5498);
+      color: white; padding: 6px 16px; border-radius: 20px;
+      font-size: 14px; font-weight: 700;
+    }
+
+    .note-display {
+      display: flex; justify-content: space-around; align-items: center;
+      margin: 16px 0 10px;
+    }
     .note-box { text-align: center; }
     .note-label { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 4px; }
-    .note-val { font-family: 'Space Mono', monospace; font-size: 38px; font-weight: 700; color: var(--secondary); min-height: 48px; }
+    .note-val {
+      font-family: 'Space Mono', monospace;
+      font-size: 38px; font-weight: 700; color: var(--secondary);
+      min-height: 48px;
+    }
     .note-arrow { font-size: 22px; color: #ced6e0; padding-top: 14px; }
-    .phase-msg { font-size: 15px; font-weight: 700; color: var(--accent); min-height: 26px; text-align: center; margin-bottom: 8px; transition: all 0.3s; }
-    .phase-msg.listening { color: var(--primary); }
+
+    .phase-msg {
+      font-size: 18px; font-weight: 700; color: var(--accent);
+      min-height: 28px; text-align: center; margin-bottom: 8px;
+      transition: all 0.3s;
+    }
+    .phase-msg.listening { color: var(--accent); font-size: 22px; }
     .phase-msg.ready { color: var(--secondary); }
-    .cent-display { font-family: 'Space Mono', monospace; font-size: 44px; font-weight: 700; min-height: 58px; color: var(--text); text-align: center; margin: 6px 0; transition: color 0.2s; }
-    .cent-display.perfect { color: var(--success); }
+
+    .cent-display {
+      font-family: 'Space Mono', monospace;
+      font-size: 44px; font-weight: 700; min-height: 58px;
+      color: var(--text); text-align: center; margin: 6px 0;
+      transition: color 0.2s;
+    }
+    .cent-display.excellent { color: var(--success); }
+    .cent-display.perfect { color: var(--perfect); }
     .cent-display.good { color: var(--warn); }
-    .cent-display.off { color: var(--accent); }
+    .cent-display.off { color: var(--muted); }
+
     .gauge-wrap { position: relative; margin: 12px 0; }
-    .gauge-bg { height: 22px; background: #e8ecf5; border-radius: 11px; overflow: hidden; position: relative; }
-    .gauge-zone-10 { position: absolute; left: 40%; width: 20%; height: 100%; background: linear-gradient(90deg, rgba(255,211,42,0.35), rgba(255,211,42,0.55)); }
-    .gauge-zone-2 { position: absolute; left: 48%; width: 4%; height: 100%; background: linear-gradient(90deg, rgba(46,213,115,0.6), rgba(46,213,115,0.9)); }
-    .gauge-ptr { position: absolute; top: 0; width: 6px; height: 100%; background: var(--secondary); border-radius: 3px; transform: translateX(-50%); transition: left 0.07s linear; box-shadow: 0 0 8px rgba(44,62,107,0.4); }
-    .gauge-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 3px; padding: 0 2px; }
-    .hold-wrap { background: #f0fff8; border-radius: 14px; padding: 12px 16px; margin-top: 10px; border: 1.5px solid rgba(46,213,115,0.3); visibility: hidden; }
-    .hold-label { font-size: 14px; font-weight: 700; color: var(--success); margin-bottom: 6px; }
-    .prog-bg { height: 10px; background: #d4f5e9; border-radius: 5px; overflow: hidden; }
-    .prog-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--success), #26d865); transition: width 0.1s linear; }
-    .combo-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) scale(0); background: var(--secondary); color: white; padding: 10px 24px; border-radius: 30px; font-weight: 700; font-size: 18px; box-shadow: 0 8px 24px rgba(44,62,107,0.3); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s; opacity: 0; pointer-events: none; z-index: 100; }
+    .gauge-bg {
+      height: 22px; background: #e8ecf5;
+      border-radius: 11px; overflow: hidden; position: relative;
+    }
+    .gauge-zone-50 {
+      position: absolute; left: 0%; width: 100%; height: 100%;
+      background: rgba(255,211,42,0.1);
+    }
+    .gauge-zone-10 {
+      position: absolute; left: 40%; width: 20%; height: 100%;
+      background: linear-gradient(90deg, rgba(78,205,196,0.25), rgba(78,205,196,0.45));
+    }
+    .gauge-zone-2 {
+      position: absolute; left: 48%; width: 4%; height: 100%;
+      background: linear-gradient(90deg, rgba(46,213,115,0.6), rgba(46,213,115,0.9));
+    }
+    .gauge-ptr {
+      position: absolute; top: 0; width: 6px; height: 100%;
+      background: var(--secondary); border-radius: 3px;
+      transform: translateX(-50%); transition: left 0.07s linear;
+      box-shadow: 0 0 8px rgba(44,62,107,0.4);
+    }
+    .gauge-labels {
+      display: flex; justify-content: space-between;
+      font-size: 10px; color: var(--muted); margin-top: 3px; padding: 0 2px;
+    }
+
+    .countdown-wrap {
+      background: #fff5f5; border-radius: 14px; padding: 12px 16px;
+      margin-top: 10px; border: 1.5px solid rgba(255,107,107,0.3);
+      visibility: hidden;
+    }
+    .countdown-wrap.show { visibility: visible; }
+    .countdown-label { font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 6px; text-align: center; }
+    .prog-bg { height: 10px; background: #ffe0e0; border-radius: 5px; overflow: hidden; }
+    .prog-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--accent), #ff4757); transition: width 0.1s linear; }
+
+    .combo-toast {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%) scale(0);
+      background: var(--secondary); color: white; padding: 10px 24px;
+      border-radius: 30px; font-weight: 700; font-size: 18px;
+      box-shadow: 0 8px 24px rgba(44,62,107,0.3);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+      opacity: 0; pointer-events: none; z-index: 100;
+    }
     .combo-toast.show { transform: translateX(-50%) scale(1); opacity: 1; }
-    .result-big { font-family: 'Space Mono', monospace; font-size: 72px; font-weight: 700; color: var(--secondary); text-align: center; margin: 12px 0; text-shadow: 0 4px 0 rgba(44,62,107,0.12); }
+
+    /* ─── RESULT SCREEN ─── */
+    .result-big {
+      font-family: 'Space Mono', monospace;
+      font-size: 72px; font-weight: 700; color: var(--secondary);
+      text-align: center; margin: 12px 0;
+      text-shadow: 0 4px 0 rgba(44,62,107,0.12);
+    }
     .result-label { font-size: 13px; color: var(--muted); font-weight: 700; letter-spacing: 0.1em; text-align: center; }
-    .result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
-    .result-cell { background: var(--bg); border-radius: 14px; padding: 12px 8px; text-align: center; }
-    .result-cell .val { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--secondary); }
-    .result-cell .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .result-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 6px; margin: 16px 0;
+    }
+    .result-cell {
+      background: var(--bg); border-radius: 12px; padding: 10px 4px; text-align: center;
+    }
+    .result-cell .val { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--secondary); }
+    .result-cell .lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+    /* log table */
     .log-section { margin-top: 16px; }
     .log-title { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 8px; }
     .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .log-table th { background: var(--bg); color: var(--muted); padding: 7px 8px; font-weight: 700; text-align: center; border-bottom: 1px solid #e5e9f5; }
-    .log-table td { padding: 7px 8px; text-align: center; border-bottom: 1px solid #f0f3fb; }
-    .tag-perfect { background: #e8fdf3; color: #1c9e5a; padding: 2px 8px; border-radius: 8px; font-weight: 700; font-size: 12px; }
-    .tag-good { background: #fff9e0; color: #c9a000; padding: 2px 8px; border-radius: 8px; font-weight: 700; font-size: 12px; }
-    .btn-pass { background: linear-gradient(135deg, #747d8c, #57606f); box-shadow: 0 4px 0 #3d4451; font-size: 14px; margin-top: 10px; width: 50%; }
+    .log-table th { background: var(--bg); color: var(--muted); padding: 7px 4px; font-weight: 700; text-align: center; border-bottom: 1px solid #e5e9f5; }
+    .log-table td { padding: 7px 4px; text-align: center; border-bottom: 1px solid #f0f3fb; }
+    .log-table tr:last-child td { border-bottom: none; }
+    .tag-excellent { background: #e8fdf3; color: #1c9e5a; padding: 2px 6px; border-radius: 8px; font-weight: 700; font-size: 11px; }
+    .tag-perfect { background: #e6f7f6; color: #1e7e78; padding: 2px 6px; border-radius: 8px; font-weight: 700; font-size: 11px; }
+    .tag-good { background: #fff9e0; color: #c9a000; padding: 2px 6px; border-radius: 8px; font-weight: 700; font-size: 11px; }
+
+    .btn-pass {
+      background: linear-gradient(135deg, #747d8c, #57606f);
+      box-shadow: 0 4px 0 #3d4451;
+      font-size: 14px; margin-top: 10px; width: 50%;
+    }
   </style>
 </head>
 <body>
@@ -81,7 +225,7 @@
 <div id="screen-login" class="screen active">
   <div class="card">
     <div class="app-title">おんていLab 🧪</div>
-    <div class="app-sub">楽器の音程感を科学する。<br>GitHub Pagesでマイクが確実に動く安定版！</div>
+    <div class="app-sub">楽器の音程感を科学する。<br>3秒間の集中演奏で、狙った音をジャストキャッチ！</div>
     <label>研究員ネーム（氏名）</label>
     <input type="text" id="user-name" placeholder="例：中田 花子">
     <label>担当楽器グループ</label>
@@ -98,9 +242,10 @@
 <div id="screen-menu" class="screen">
   <div class="card">
     <h2 style="color:var(--secondary); margin-bottom:6px;">実験メニュー</h2>
-    <button class="btn btn-level" onclick="startGame(1)">🎯 Lv.1 ユニゾン</button>
-    <button class="btn btn-level" onclick="startGame(2)">🎵 Lv.2 パワーコード</button>
-    <button class="btn btn-level" onclick="startGame(3)">✨ Lv.3 純正律ハーモニー</button>
+    <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">チャレンジするレベルを選んでください</p>
+    <button class="btn btn-level" onclick="startGame(1)">🎯 Lv.1 ユニゾン<br><span style="font-size:12px; opacity:0.8; font-weight:400">同じ音程を正確に合わせる</span></button>
+    <button class="btn btn-level" onclick="startGame(2)">🎵 Lv.2 パワーコード<br><span style="font-size:12px; opacity:0.8; font-weight:400">5度・4度の音程を合わせる</span></button>
+    <button class="btn btn-level" onclick="startGame(3)">✨ Lv.3 純正律ハーモニー<br><span style="font-size:12px; opacity:0.8; font-weight:400">純正律3度の超精密な音程</span></button>
   </div>
   <button class="btn btn-back" onclick="showScreen('screen-login')">← 戻る</button>
 </div>
@@ -112,299 +257,29 @@
       <div class="score-badge">Score: <span id="current-score">0</span></div>
     </div>
     <div class="note-display">
-      <div class="note-box"><div class="note-label">基 準 音</div><div class="note-val" id="ref-note">--</div></div>
+      <div class="note-box">
+        <div class="note-label">基 準 音</div>
+        <div class="note-val" id="ref-note">--</div>
+      </div>
       <div class="note-arrow">▶</div>
-      <div class="note-box"><div class="note-label">あなたの狙う音</div><div class="note-val" id="target-note">--</div></div>
+      <div class="note-box">
+        <div class="note-label">あなたの狙う音</div>
+        <div class="note-val" id="target-note">--</div>
+      </div>
     </div>
+
     <div class="phase-msg" id="phase-msg">準備中...</div>
     <div class="cent-display" id="cent-val">--</div>
+
     <div class="gauge-wrap">
-      <div class="gauge-bg"><div class="gauge-zone-10"></div><div class="gauge-zone-2"></div><div class="gauge-ptr" id="pointer" style="left:50%"></div></div>
+      <div class="gauge-bg">
+        <div class="gauge-zone-50"></div>
+        <div class="gauge-zone-10"></div>
+        <div class="gauge-zone-2"></div>
+        <div class="gauge-ptr" id="pointer" style="left:50%"></div>
+      </div>
       <div class="gauge-labels"><span>-50¢</span><span>±10¢</span><span>±2¢</span><span>±10¢</span><span>+50¢</span></div>
     </div>
-    <div class="hold-wrap" id="hold-wrap">
-      <div class="hold-label" id="hold-label">HOLD...</div>
-      <div class="prog-bg"><div id="prog-fill" class="prog-fill"></div></div>
-    </div>
-  </div>
-  <button class="btn btn-pass" onclick="passQuestion()">パス / リセット</button>
-</div>
 
-<div id="screen-result" class="screen">
-  <div class="card">
-    <div class="result-label">TOTAL SCORE</div>
-    <div class="result-big" id="result-score">0</div>
-    <div id="send-status" style="font-size:12px; text-align:center; color:var(--primary); margin-bottom:10px; font-weight:bold;">📊 スプレッドシートにデータ送信中...</div>
-    <div class="result-grid">
-      <div class="result-cell"><div class="val" id="res-perfect">0</div><div class="lbl">🎯 Perfect</div></div>
-      <div class="result-cell"><div class="val" id="res-good">0</div><div class="lbl">⭕ Good</div></div>
-      <div class="result-cell"><div class="val" id="res-pass">0</div><div class="lbl">⏭ Pass</div></div>
-    </div>
-    <div class="log-section">
-      <div class="log-title">📋 結果ログ</div>
-      <table class="log-table">
-        <thead><tr><th>#</th><th>狙った音</th><th>誤差</th><th>判定</th><th>得点</th></tr></thead>
-        <tbody id="log-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-  <button class="btn" onclick="location.reload()">🔁 もう一度チャレンジ</button>
-</div>
-
-<div class="combo-toast" id="combo-toast"></div>
-
-<script>
-// ⚠️ 【最重要】ここにStep 1で新しく取得したGASのウェブアプリURLを貼り付けてください！
-const GAS_URL = "ここにステップ1でコピーしたURLを貼り付け";
-
-let audioCtx, refOsc, micStream, analyst, source;
-let currentLevel = 1, qNum = 0, totalScore = 0, combo = 0, phase = 'idle';
-let refFreq, targetFreq;
-let holdStart = null, rafId = null, currentHoldType = 0;
-let instGroup = "1", userName = "", resultLog = [];
-let perfCount = 0, goodCount = 0, passCount = 0;
-
-const baseBflats = { "1": 932.33, "2": 466.16, "3": 233.08, "4": 116.54 };
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function goToMenu() {
-  userName = document.getElementById('user-name').value.trim();
-  if (!userName) { alert("研究員ネームを入力してください！"); return; }
-  instGroup = document.getElementById('user-inst').value;
-  showScreen('screen-menu');
-}
-
-async function startGame(lv) {
-  currentLevel = lv; qNum = 0; totalScore = 0; combo = 0;
-  resultLog = []; perfCount = 0; goodCount = 0; passCount = 0;
-  showScreen('screen-game');
-  setPhase('準備中... マイクを起動しています 🎤', 'ready');
-
-  try {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    const AC = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AC();
-    analyst = audioCtx.createAnalyser();
-    analyst.fftSize = 2048;
-    source = audioCtx.createMediaStreamSource(micStream);
-    source.connect(analyst);
-    if (audioCtx.state === 'suspended') await audioCtx.resume();
-  } catch(e) {
-    alert("マイクエラー: " + e.message + "\nGitHub Pagesからマイクの使用許可を求められたら『許可』を押してください。");
-    showScreen('screen-menu');
-    return;
-  }
-  nextQuestion();
-}
-
-function nextQuestion() {
-  if (qNum >= 10) return endGame();
-  qNum++;
-  document.getElementById('q-label').textContent = `Task ${qNum}/10`;
-  document.getElementById('current-score').textContent = totalScore;
-  document.getElementById('cent-val').textContent = '--';
-  document.getElementById('cent-val').className = 'cent-display';
-  document.getElementById('pointer').style.left = '50%';
-  document.getElementById('hold-wrap').style.visibility = 'hidden';
-  document.getElementById('prog-fill').style.width = '0%';
-  holdStart = null; currentHoldType = 0;
-
-  const center = baseBflats[instGroup];
-  const offset = Math.floor(Math.random() * 13) - 6;
-  refFreq = center * Math.pow(2, offset / 12);
-
-  if (currentLevel === 1) { targetFreq = refFreq; }
-  else if (currentLevel === 2) { targetFreq = refFreq * Math.pow(2, (Math.random() > 0.5 ? 7 : -5) / 12); }
-  else { targetFreq = refFreq * (Math.random() > 0.5 ? 1.25 : 1.2); }
-
-  document.getElementById('ref-note').textContent = freqToNote(refFreq);
-  document.getElementById('target-note').textContent = freqToNote(targetFreq);
-
-  phase = 'ref';
-  setPhase('🎵 基準音を聴いてください...', 'ready');
-  playRef(refFreq);
-
-  setTimeout(() => {
-    stopRef();
-    phase = 'pitch-detect';
-    setPhase('🎤 楽器を吹いてください！', 'listening');
-    cancelAnimationFrame(rafId);
-    pitchLoop();
-  }, 2800);
-}
-
-function passQuestion() {
-  if (phase === 'idle') return;
-  phase = 'idle'; cancelAnimationFrame(rafId); stopRef();
-  sendDataToGAS(qNum, "Pass", 0, 0); // パスデータ送信
-  passCount++;
-  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: '--', result: 'Pass', pts: 0 });
-  nextQuestion();
-}
-
-function playRef(freq) {
-  if (!audioCtx) return;
-  stopRef();
-  refOsc = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  refOsc.type = 'triangle'; refOsc.frequency.value = freq;
-  g.gain.setValueAtTime(0, audioCtx.currentTime);
-  g.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 0.05);
-  g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2.5);
-  refOsc.connect(g).connect(audioCtx.destination);
-  refOsc.start();
-}
-function stopRef() { if (refOsc) { try { refOsc.stop(); } catch(e) {} refOsc = null; } }
-
-function pitchLoop() {
-  if (phase !== 'pitch-detect' || !analyst) return;
-  const buf = new Float32Array(analyst.fftSize);
-  analyst.getFloatTimeDomainData(buf);
-  const freq = autoCorrelate(buf, audioCtx.sampleRate);
-
-  if (freq > 40 && freq < 2500) {
-    let cents = 1200 * Math.log2(freq / targetFreq);
-    while (cents > 600) cents -= 1200;
-    while (cents < -600) cents += 1200;
-    updateUI(cents);
-    checkHold(cents);
-  }
-  rafId = requestAnimationFrame(pitchLoop);
-}
-
-function updateUI(diff) {
-  const el = document.getElementById('cent-val');
-  el.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(1) + ' ¢';
-  const abs = Math.abs(diff);
-  el.className = 'cent-display ' + (abs <= 2 ? 'perfect' : abs <= 10 ? 'good' : 'off');
-  const pos = Math.max(0, Math.min(100, 50 + (diff / 50) * 50));
-  document.getElementById('pointer').style.left = pos + '%';
-}
-
-function checkHold(diff) {
-  const abs = Math.abs(diff);
-  let needed = abs <= 2 ? 2 : abs <= 10 ? 10 : 0;
-  if (needed === 0) {
-    holdStart = null; currentHoldType = 0;
-    document.getElementById('hold-wrap').style.visibility = 'hidden';
-    return;
-  }
-  if (needed !== currentHoldType) {
-    holdStart = Date.now(); currentHoldType = needed;
-    document.getElementById('hold-wrap').style.visibility = 'visible';
-  }
-  const req = currentHoldType === 2 ? 3 : 10;
-  const elapsed = (Date.now() - holdStart) / 1000;
-  document.getElementById('hold-label').textContent = currentHoldType === 2 ? `🎯 PERFECT HOLD (${req}s)` : `⭕ GOOD HOLD (${req}s)`;
-  document.getElementById('prog-fill').style.width = Math.min(100, (elapsed / req) * 100) + '%';
-
-  if (elapsed >= req) {
-    phase = 'idle'; cancelAnimationFrame(rafId);
-    onSuccess(currentHoldType === 2, diff);
-  }
-}
-
-function onSuccess(isPerfect, finalDiff) {
-  const pts = (isPerfect ? 100 : 30) * currentLevel;
-  totalScore += pts; combo++;
-  
-  if (isPerfect) { perfCount++; confetti({ particleCount: 160, spread: 72, origin: { y: 0.6 } }); }
-  else { goodCount++; confetti({ particleCount: 55, spread: 60 }); }
-
-  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: finalDiff.toFixed(1), result: isPerfect ? 'Perfect' : 'Good', pts });
-  
-  // GASに裏側で非同期送信
-  sendDataToGAS(qNum, isPerfect ? "Perfect" : "Good", finalDiff, pts);
-
-  if (combo >= 3) showComboToast(`${combo} COMBO! 🔥`);
-  nextQuestion();
-}
-
-function showComboToast(msg) {
-  const t = document.getElementById('combo-toast'); t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 1800);
-}
-
-// バックグラウンドでGASへデータ送信する関数
-function sendDataToGAS(questionNumber, resText, diffVal, points) {
-  if(!GAS_URL || GAS_URL.includes("ここにステップ1")) return;
-  const instLabels = ["", "フルート", "木管・Tp", "中低音木金", "チューバ・CB"];
-  const data = {
-    userName: userName,
-    instrument: instLabels[parseInt(instGroup)],
-    qNum: questionNumber,
-    result: resText,
-    diff: diffVal ? diffVal.toFixed(1) : "--",
-    score: points,
-    level: currentLevel
-  };
-  
-  // 画面を止めずに裏側で送信する設定
-  fetch(GAS_URL, {
-    method: "POST",
-    mode: "no-cors", // 箱を突き抜けてGASに送りつける設定
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  }).catch(e => console.log("送信控え:", e));
-}
-
-function endGame() {
-  phase = 'idle'; stopRef(); cancelAnimationFrame(rafId);
-  if (micStream) micStream.getTracks().forEach(t => t.stop());
-
-  document.getElementById('result-score').textContent = totalScore;
-  document.getElementById('res-perfect').textContent = perfCount;
-  document.getElementById('res-good').textContent = goodCount;
-  document.getElementById('res-pass').textContent = passCount;
-  document.getElementById('send-status').textContent = "📊 全データがスプレッドシートに記録されました！";
-
-  const tbody = document.getElementById('log-tbody'); tbody.innerHTML = '';
-  resultLog.forEach(r => {
-    const tr = document.createElement('tr');
-    const tag = r.result === 'Perfect' ? `<span class="tag-perfect">Perfect</span>` : r.result === 'Good' ? `<span class="tag-good">Good</span>` : `<span style="color:var(--muted); font-size:12px">Pass</span>`;
-    tr.innerHTML = `<td>${r.q}</td><td>${r.note}</td><td>${r.diff === '--' ? '--' : r.diff + '¢'}</td><td>${tag}</td><td><b>${r.pts}</b></td>`;
-    tbody.appendChild(tr);
-  });
-
-  if (totalScore > 500) confetti({ particleCount: 250, spread: 120, origin: { y: 0.5 } });
-  showScreen('screen-result');
-}
-
-function setPhase(msg, cls) {
-  const el = document.getElementById('phase-msg'); el.textContent = msg; el.className = 'phase-msg ' + (cls || '');
-}
-
-function autoCorrelate(buf, sr) {
-  const SIZE = buf.length; let rms = 0;
-  for (let i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
-  if (Math.sqrt(rms / SIZE) < 0.015) return -1;
-  let r1 = 0, r2 = SIZE - 1;
-  for (let i = 0; i < SIZE / 2; i++) { if (Math.abs(buf[i]) < 0.2) { r1 = i; break; } }
-  for (let i = SIZE - 1; i >= SIZE / 2; i--) { if (Math.abs(buf[i]) < 0.2) { r2 = i; break; } }
-  if (r1 >= r2) return -1;
-  const b = buf.slice(r1, r2); const N = b.length; if (N < 4) return -1;
-  const c = new Float32Array(N);
-  for (let i = 0; i < N; i++) for (let j = 0; j < N - i; j++) c[i] += b[j] * b[j + i];
-  let d = 0; while (d < N - 1 && c[d] > c[d + 1]) d++;
-  let maxVal = -1, maxPos = -1;
-  for (let i = d; i < N; i++) { if (c[i] > maxVal) { maxVal = c[i]; maxPos = i; } }
-  if (maxPos <= 0 || maxPos >= N - 1) return -1;
-  const x1 = c[maxPos - 1], x2 = c[maxPos], x3 = c[maxPos + 1];
-  const a = (x1 + x3 - 2 * x2) / 2; const b2 = (x3 - x1) / 2;
-  const T0 = a ? maxPos - b2 / (2 * a) : maxPos;
-  return sr / T0;
-}
-
-function freqToNote(f) {
-  const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-  const i = Math.round(12 * Math.log2(f / 440)) + 69;
-  if (i < 0 || i > 127) return '??';
-  return notes[((i % 12) + 12) % 12] + Math.floor(i / 12 - 1);
-}
-</script>
-</body>
-</html>
+    <div class="countdown-wrap" id="countdown-wrap">
+      <div class="countdown-label" id="countdown-label">演奏
