@@ -282,4 +282,339 @@
     </div>
 
     <div class="countdown-wrap" id="countdown-wrap">
-      <div class="countdown-label" id="countdown-label">演奏
+      <div class="countdown-label" id="countdown-label">演奏時間 残り: 3.00秒</div>
+      <div class="prog-bg"><div id="prog-fill" class="prog-fill"></div></div>
+    </div>
+  </div>
+  <button class="btn btn-pass" onclick="passQuestion()">パス / 次へ</button>
+</div>
+
+<div id="screen-result" class="screen">
+  <div class="card">
+    <div class="result-label">TOTAL SCORE</div>
+    <div class="result-big" id="result-score">0</div>
+    <div id="send-status" style="font-size:12px; text-align:center; color:var(--primary); margin-bottom:10px; font-weight:bold;">📊 スプレッドシートにデータ送信中...</div>
+    <div class="result-grid">
+      <div class="result-cell">
+        <div class="val" id="res-excellent">0</div>
+        <div class="lbl">✨ Excel</div>
+      </div>
+      <div class="result-cell">
+        <div class="val" id="res-perfect">0</div>
+        <div class="lbl">🎯 Perf</div>
+      </div>
+      <div class="result-cell">
+        <div class="val" id="res-good">0</div>
+        <div class="lbl">⭕ Good</div>
+      </div>
+      <div class="result-cell">
+        <div class="val" id="res-try">0</div>
+        <div class="lbl">💦 Try</div>
+      </div>
+    </div>
+    <div class="log-section">
+      <div class="log-title">📋 結果ログ</div>
+      <table class="log-table">
+        <thead><tr><th>#</th><th>狙った音</th><th>最終誤差</th><th>判定</th><th>得点</th></tr></thead>
+        <tbody id="log-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <button class="btn" onclick="location.reload()">🔁 もう一度チャレンジ</button>
+</div>
+
+<div class="combo-toast" id="combo-toast"></div>
+
+<script>
+// 📊 ご指定いただいたGASのURLをセットしました！
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzu7UO_LtZ1in_Ykbf39XfaC8WFATQ_3lWSnl818phr1iSMe1E8a9jz3NnGa_TqJpfG/exec";
+
+// ─── STATE ───────────────────────────────────────────────
+let audioCtx, refOsc, micStream, analyst, source;
+let currentLevel = 1, qNum = 0, totalScore = 0, combo = 0;
+let phase = 'idle';
+let refFreq, targetFreq;
+let startTime = null, rafId = null;
+let instGroup = "1", userName = "";
+let resultLog = [];
+let excelCount = 0, perfCount = 0, goodCount = 0, tryCount = 0;
+let lastDetectedCents = null;
+
+const baseBflats = { "1": 932.33, "2": 466.16, "3": 233.08, "4": 116.54 };
+const PLAY_DURATION = 3000;
+
+// ─── SCREENS ─────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goToMenu() {
+  userName = document.getElementById('user-name').value.trim();
+  if (!userName) { alert("研究員ネームを入力してください！"); return; }
+  instGroup = document.getElementById('user-inst').value;
+  showScreen('screen-menu');
+}
+
+// ─── START GAME ──────────────────────────────────────────
+async function startGame(lv) {
+  currentLevel = lv; qNum = 0; totalScore = 0; combo = 0;
+  resultLog = []; excelCount = 0; perfCount = 0; goodCount = 0; tryCount = 0;
+  showScreen('screen-game');
+  setPhase('準備中... マイクを起動しています 🎤', 'ready');
+
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    const AC = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AC();
+    analyst = audioCtx.createAnalyser();
+    analyst.fftSize = 2048;
+    source = audioCtx.createMediaStreamSource(micStream);
+    source.connect(analyst);
+    if (audioCtx.state === 'suspended') await audioCtx.resume();
+  } catch(e) {
+    alert("マイクエラー: " + e.message);
+    showScreen('screen-menu');
+    return;
+  }
+  nextQuestion();
+}
+
+// ─── QUESTION CYCLE ──────────────────────────────────────
+function nextQuestion() {
+  if (qNum >= 10) return endGame();
+  qNum++;
+  document.getElementById('q-label').textContent = `Task ${qNum}/10`;
+  document.getElementById('current-score').textContent = totalScore;
+  document.getElementById('cent-val').textContent = '--';
+  document.getElementById('cent-val').className = 'cent-display off';
+  document.getElementById('pointer').style.left = '50%';
+  document.getElementById('countdown-wrap').classList.remove('show');
+  document.getElementById('prog-fill').style.width = '100%';
+  startTime = null;
+  lastDetectedCents = null;
+
+  const center = baseBflats[instGroup];
+  const offset = Math.floor(Math.random() * 13) - 6;
+  refFreq = center * Math.pow(2, offset / 12);
+
+  if (currentLevel === 1) { targetFreq = refFreq; }
+  else if (currentLevel === 2) { targetFreq = refFreq * Math.pow(2, (Math.random() > 0.5 ? 7 : -5) / 12); }
+  else { targetFreq = refFreq * (Math.random() > 0.5 ? 1.25 : 1.2); }
+
+  document.getElementById('ref-note').textContent = freqToNote(refFreq);
+  document.getElementById('target-note').textContent = freqToNote(targetFreq);
+
+  phase = 'ref';
+  setPhase('🎵 基準音を聴いてください...', 'ready');
+  playRef(refFreq);
+
+  setTimeout(() => {
+    stopRef();
+    phase = 'pitch-detect';
+    setPhase('🎤 3秒間、楽器を鳴らしてください！', 'listening');
+    document.getElementById('countdown-wrap').classList.add('show');
+    startTime = Date.now();
+    cancelAnimationFrame(rafId);
+    pitchLoop();
+  }, 2800);
+}
+
+function passQuestion() {
+  if (phase === 'idle') return;
+  phase = 'idle'; cancelAnimationFrame(rafId); stopRef();
+  sendDataToGAS(qNum, "Pass", 0, 0);
+  tryCount++;
+  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: '--', result: 'Pass', pts: 0 });
+  nextQuestion();
+}
+
+// ─── AUDIO ───────────────────────────────────────────────
+function playRef(freq) {
+  if (!audioCtx) return;
+  stopRef();
+  refOsc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  refOsc.type = 'triangle'; refOsc.frequency.value = freq;
+  g.gain.setValueAtTime(0, audioCtx.currentTime);
+  g.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 0.05);
+  g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2.5);
+  refOsc.connect(g).connect(audioCtx.destination);
+  refOsc.start();
+}
+function stopRef() { if (refOsc) { try { refOsc.stop(); } catch(e) {} refOsc = null; } }
+
+// ─── PITCH DETECTION LOOP ────────────────────────────────
+function pitchLoop() {
+  if (phase !== 'pitch-detect' || !analyst) return;
+  const elapsed = Date.now() - startTime;
+  const remaining = Math.max(0, PLAY_DURATION - elapsed);
+
+  document.getElementById('countdown-label').textContent = `演奏時間 残り: ${(remaining / 1000).toFixed(2)}秒`;
+  document.getElementById('prog-fill').style.width = (remaining / PLAY_DURATION) * 100 + '%';
+
+  const buf = new Float32Array(analyst.fftSize);
+  analyst.getFloatTimeDomainData(buf);
+  const freq = autoCorrelate(buf, audioCtx.sampleRate);
+
+  if (freq > 40 && freq < 2500) {
+    let cents = 1200 * Math.log2(freq / targetFreq);
+    while (cents > 600) cents -= 1200;
+    while (cents < -600) cents += 1200;
+    lastDetectedCents = cents;
+    updateUI(cents);
+  }
+
+  if (remaining <= 0) {
+    phase = 'idle'; cancelAnimationFrame(rafId);
+    evaluateFinalPitch();
+  } else {
+    rafId = requestAnimationFrame(pitchLoop);
+  }
+}
+
+function updateUI(diff) {
+  const el = document.getElementById('cent-val');
+  el.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(1) + ' ¢';
+  const abs = Math.abs(diff);
+  if (abs <= 2) el.className = 'cent-display excellent';
+  else if (abs <= 10) el.className = 'cent-display perfect';
+  else if (abs <= 50) el.className = 'cent-display good';
+  else el.className = 'cent-display off';
+  const pos = Math.max(0, Math.min(100, 50 + (diff / 50) * 50));
+  document.getElementById('pointer').style.left = pos + '%';
+}
+
+// ─── FINAL EVALUATION ───────────────────────────────────
+function evaluateFinalPitch() {
+  if (lastDetectedCents === null) {
+    alert("音がうまく検知できませんでした。もう一度挑戦します！");
+    qNum--; nextQuestion(); return;
+  }
+
+  const abs = Math.abs(lastDetectedCents);
+  let rank = '';
+  let pts = 0;
+
+  // 📈 新しいご指定の点数配分（50, 30, 20, 10 × レベル）
+  if (abs <= 2) {
+    rank = 'Excellent'; pts = 50 * currentLevel; excelCount++;
+    confetti({ particleCount: 180, spread: 80, origin: { y: 0.6 } });
+  } else if (abs <= 10) {
+    rank = 'Perfect'; pts = 30 * currentLevel; perfCount++;
+    confetti({ particleCount: 90, spread: 60 });
+  } else if (abs <= 50) {
+    rank = 'Good'; pts = 20 * currentLevel; goodCount++;
+    confetti({ particleCount: 30, spread: 40 });
+  } else {
+    rank = 'あと少し！'; pts = 10; tryCount++;
+  }
+
+  if (rank !== 'あと少し！') {
+    combo++; if (combo >= 3) showComboToast(`${combo} COMBO! 🔥`);
+  } else {
+    combo = 0;
+  }
+
+  totalScore += pts;
+  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: lastDetectedCents.toFixed(1), result: rank, pts });
+
+  // バックグラウンドでスプレッドシートへリアルタイム送信
+  sendDataToGAS(qNum, rank, lastDetectedCents, pts);
+
+  setPhase(`判定：【${rank}】 (${lastDetectedCents.toFixed(1)}¢)`, rank === 'あと少し！' ? 'ready' : 'listening');
+  setTimeout(() => { nextQuestion(); }, 1200);
+}
+
+function showComboToast(msg) {
+  const t = document.getElementById('combo-toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1500);
+}
+
+// ─── DATA SEND TO GAS ───────────────────────────────────
+function sendDataToGAS(questionNumber, resText, diffVal, points) {
+  if(!GAS_URL) return;
+  const instLabels = ["", "フルート", "木管・Tp", "中低音木金", "チューバ・CB"];
+  const data = {
+    userName: userName,
+    instrument: instLabels[parseInt(instGroup)],
+    qNum: questionNumber,
+    result: resText,
+    diff: diffVal ? diffVal.toFixed(1) : "--",
+    score: points,
+    level: currentLevel
+  };
+  
+  fetch(GAS_URL, {
+    method: "POST",
+    mode: "no-cors", 
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  }).catch(e => console.log("送信控え:", e));
+}
+
+// ─── END GAME ────────────────────────────────────────────
+function endGame() {
+  phase = 'idle'; stopRef(); cancelAnimationFrame(rafId);
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+
+  document.getElementById('result-score').textContent = totalScore;
+  document.getElementById('res-excellent').textContent = excelCount;
+  document.getElementById('res-perfect').textContent = perfCount;
+  document.getElementById('res-good').textContent = goodCount;
+  document.getElementById('res-try').textContent = tryCount;
+  document.getElementById('send-status').textContent = "📊 全データがスプレッドシートに記録されました！";
+
+  const tbody = document.getElementById('log-tbody'); tbody.innerHTML = '';
+  resultLog.forEach(r => {
+    const tr = document.createElement('tr');
+    let tag = '';
+    if (r.result === 'Excellent') tag = `<span class="tag-excellent">Excellent</span>`;
+    else if (r.result === 'Perfect') tag = `<span class="tag-perfect">Perfect</span>`;
+    else if (r.result === 'Good') tag = `<span class="tag-good">Good</span>`;
+    else tag = `<span style="color:var(--muted); font-size:12px">${r.result}</span>`;
+    
+    tr.innerHTML = `<td>${r.q}</td><td>${r.note}</td><td>${r.diff === '--' ? '--' : r.diff + '¢'}</td><td>${tag}</td><td><b>${r.pts}</b></td>`;
+    tbody.appendChild(tr);
+  });
+
+  if (totalScore > 150) confetti({ particleCount: 250, spread: 120, origin: { y: 0.5 } });
+  showScreen('screen-result');
+}
+
+function setPhase(msg, cls) {
+  const el = document.getElementById('phase-msg'); el.textContent = msg; el.className = 'phase-msg ' + (cls || '');
+}
+
+// ─── AUTO CORRELATE ──────────────────────────────────────
+function autoCorrelate(buf, sr) {
+  const SIZE = buf.length; let rms = 0;
+  for (let i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
+  if (Math.sqrt(rms / SIZE) < 0.015) return -1;
+  let r1 = 0, r2 = SIZE - 1;
+  for (let i = 0; i < SIZE / 2; i++) { if (Math.abs(buf[i]) < 0.2) { r1 = i; break; } }
+  for (let i = SIZE - 1; i >= SIZE / 2; i--) { if (Math.abs(buf[i]) < 0.2) { r2 = i; break; } }
+  if (r1 >= r2) return -1;
+  const b = buf.slice(r1, r2); const N = b.length; if (N < 4) return -1;
+  const c = new Float32Array(N);
+  for (let i = 0; i < N; i++) for (let j = 0; j < N - i; j++) c[i] += b[j] * b[j + i];
+  let d = 0; while (d < N - 1 && c[d] > c[d + 1]) d++;
+  let maxVal = -1, maxPos = -1;
+  for (let i = d; i < N; i++) { if (c[i] > maxVal) { maxVal = c[i]; maxPos = i; } }
+  if (maxPos <= 0 || maxPos >= N - 1) return -1;
+  const x1 = c[maxPos - 1], x2 = c[maxPos], x3 = c[maxPos + 1];
+  const a = (x1 + x3 - 2 * x2) / 2; const b2 = (x3 - x1) / 2;
+  const T0 = a ? maxPos - b2 / (2 * a) : maxPos;
+  return sr / T0;
+}
+
+// ─── FREQ → NOTE ─────────────────────────────────────────
+function freqToNote(f) {
+  const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const i = Math.round(12 * Math.log2(f / 440)) + 69;
+  if (i < 0 || i > 127) return '??';
+  return notes[((i % 12) + 12) % 12] + Math.floor(i / 12 - 1);
+}
+</script>
+</body>
+</html>
