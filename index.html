@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>おんていLab 🧪</title>
+  <title>ピッチ・トレーナー 🎵</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -88,10 +88,17 @@
     }
     .btn-back:active { box-shadow: 0 2px 0 #3d4451; }
 
+    .btn-outline {
+      background: transparent; color: var(--secondary);
+      border: 2px solid var(--secondary); box-shadow: none;
+      font-size: 14px; margin-top: 12px; padding: 12px;
+    }
+    .btn-outline:active { transform: translateY(1px); }
+
     /* ─── GAME SCREEN ─── */
     .game-header {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     .q-badge {
       background: var(--bg); color: var(--secondary);
@@ -102,6 +109,13 @@
       background: linear-gradient(135deg, var(--secondary), #3d5498);
       color: white; padding: 6px 16px; border-radius: 20px;
       font-size: 14px; font-weight: 700;
+    }
+
+    /* レベル目的の解説バナー */
+    .level-purpose-banner {
+      background: #fdfaf4; border: 1px solid #f3e5cb; border-radius: 12px;
+      padding: 8px 12px; font-size: 12px; color: #b77a21; font-weight: 700;
+      margin-bottom: 16px; text-align: center; line-height: 1.4;
     }
 
     .note-display {
@@ -202,31 +216,44 @@
     .result-cell .val { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--secondary); }
     .result-cell .lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
-    /* log table */
+    /* log table & history table */
     .log-section { margin-top: 16px; }
     .log-title { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 8px; }
     .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .log-table th { background: var(--bg); color: var(--muted); padding: 7px 4px; font-weight: 700; text-align: center; border-bottom: 1px solid #e5e9f5; }
     .log-table td { padding: 7px 4px; text-align: center; border-bottom: 1px solid #f0f3fb; }
     .log-table tr:last-child td { border-bottom: none; }
+    
+    /* 評価タグのスタイル定義 */
     .tag-excellent { background: #e8fdf3; color: #1c9e5a; padding: 2px 6px; border-radius: 8px; font-weight: 700; font-size: 11px; }
-    .tag-perfect { background: #e6f7f6; color: #1e7e78; padding: 2px 6px; border-radius: 8px; font-weight: 700; font-size: 11px; }
+    .tag-great { background: #e6f7f6; color: #1e7e78; padding: 2px 6px; border-radius: 8px; font-weight: 700; font-size: 11px; }
     .tag-good { background: #fff9e0; color: #c9a000; padding: 2px 6px; border-radius: 8px; font-weight: 700; font-size: 11px; }
+    .tag-almost { background: #f1f2f6; color: #57606f; padding: 2px 6px; border-radius: 8px; font-weight: 700; font-size: 11px; }
 
+    /* 優しい表現に変えたスキップ（次へ進む）ボタン */
     .btn-pass {
-      background: linear-gradient(135deg, #747d8c, #57606f);
-      box-shadow: 0 4px 0 #3d4451;
-      font-size: 14px; margin-top: 10px; width: 50%;
+      background: linear-gradient(135deg, #a4b0be, #747d8c);
+      box-shadow: 0 4px 0 #57606f;
+      font-size: 14px; margin-top: 12px; width: 50%;
+      margin-left: auto; margin-right: auto;
     }
+    .btn-pass:active { box-shadow: 0 2px 0 #57606f; }
+
+    /* ─── HISTORY SCROLL BOX ─── */
+    .history-box {
+      max-height: 240px; overflow-y: auto;
+      border: 1px solid #e5e9f5; border-radius: 12px; background: #fafbfc;
+    }
+    .no-history { font-size: 13px; color: var(--muted); text-align: center; padding: 20px 0; }
   </style>
 </head>
 <body>
 
 <div id="screen-login" class="screen active">
   <div class="card">
-    <div class="app-title">おんていLab 🧪</div>
-    <div class="app-sub">楽器の音程感を科学する。<br>3秒間の集中演奏で、狙った音をジャストキャッチ！</div>
-    <label>研究員ネーム（氏名）</label>
+    <div class="app-title">ピッチ・トレーナー 🎵</div>
+    <div class="app-sub">3秒間の安定したロングトーンを行い、正確な音程を身につけるための練習ツールです。</div>
+    <label>お名前（氏名）</label>
     <input type="text" id="user-name" placeholder="例：中田 花子">
     <label>担当楽器グループ</label>
     <select id="user-inst">
@@ -235,17 +262,34 @@
       <option value="3">③ Hr・Tb・Euph・テナー・バスクラ (B♭3音域)</option>
       <option value="4">④ チューバ・コントラバス (B♭2音域)</option>
     </select>
-    <button class="btn" onclick="goToMenu()">🔬 研究室に入る</button>
+    <button class="btn" onclick="goToMenu()">メニューへ進む</button>
+    <button class="btn btn-outline" onclick="showHistoryScreen()">📊 過去の練習記録を見る</button>
   </div>
+</div>
+
+<div id="screen-history" class="screen">
+  <div class="card">
+    <h2 style="color:var(--secondary); margin-bottom:6px;">練習の履歴</h2>
+    <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">この端末に保存されている過去のスコアです。</p>
+    <div class="history-box">
+      <table class="log-table">
+        <thead><tr><th>日時</th><th>レベル</th><th>得点</th></tr></thead>
+        <tbody id="history-tbody"></tbody>
+      </table>
+      <div id="history-empty-msg" class="no-history">まだ練習記録がありません。</div>
+    </div>
+    <button class="btn btn-outline" style="border-color:#ff4757; color:#ff4757;" onclick="clearAllHistory()">履歴をすべて消去する</button>
+  </div>
+  <button class="btn btn-back" onclick="showScreen('screen-login')">← 戻る</button>
 </div>
 
 <div id="screen-menu" class="screen">
   <div class="card">
-    <h2 style="color:var(--secondary); margin-bottom:6px;">実験メニュー</h2>
-    <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">チャレンジするレベルを選んでください</p>
-    <button class="btn btn-level" onclick="startGame(1)">🎯 Lv.1 ユニゾン<br><span style="font-size:12px; opacity:0.8; font-weight:400">同じ音程を正確に合わせる</span></button>
-    <button class="btn btn-level" onclick="startGame(2)">🎵 Lv.2 パワーコード<br><span style="font-size:12px; opacity:0.8; font-weight:400">5度・4度の音程を合わせる</span></button>
-    <button class="btn btn-level" onclick="startGame(3)">✨ Lv.3 純正律ハーモニー<br><span style="font-size:12px; opacity:0.8; font-weight:400">純正律3度の超精密な音程</span></button>
+    <h2 style="color:var(--secondary); margin-bottom:6px;">練習メニュー</h2>
+    <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">挑戦する難易度を選択してください</p>
+    <button class="btn btn-level" onclick="startGame(1)">🎯 レベル1：ユニゾン<br><span style="font-size:12px; opacity:0.8; font-weight:400">同じ音程を正確に合わせます</span></button>
+    <button class="btn btn-level" onclick="startGame(2)">🎵 レベル2：パワーコード<br><span style="font-size:12px; opacity:0.8; font-weight:400">5度・4度の音程を合わせます</span></button>
+    <button class="btn btn-level" onclick="startGame(3)">✨ レベル3：純正律ハーモニー<br><span style="font-size:12px; opacity:0.8; font-weight:400">純正律3度の精密な音程を合わせます</span></button>
   </div>
   <button class="btn btn-back" onclick="showScreen('screen-login')">← 戻る</button>
 </div>
@@ -253,9 +297,12 @@
 <div id="screen-game" class="screen">
   <div class="card">
     <div class="game-header">
-      <div class="q-badge" id="q-label">Task 1/10</div>
-      <div class="score-badge">Score: <span id="current-score">0</span></div>
+      <div class="q-badge" id="q-label">課題 1/10</div>
+      <div class="score-badge">合計得点: <span id="current-score">0</span></div>
     </div>
+    
+    <div class="level-purpose-banner" id="level-purpose-text">練習の目的を表示しています。</div>
+
     <div class="note-display">
       <div class="note-box">
         <div class="note-label">基 準 音</div>
@@ -263,7 +310,7 @@
       </div>
       <div class="note-arrow">▶</div>
       <div class="note-box">
-        <div class="note-label">あなたの狙う音</div>
+        <div class="note-label">狙う音</div>
         <div class="note-val" id="target-note">--</div>
       </div>
     </div>
@@ -282,18 +329,18 @@
     </div>
 
     <div class="countdown-wrap" id="countdown-wrap">
-      <div class="countdown-label" id="countdown-label">演奏時間 残り: 3.00秒</div>
+      <div class="countdown-label" id="countdown-label">残り演奏時間: 3.00秒</div>
       <div class="prog-bg"><div id="prog-fill" class="prog-fill"></div></div>
     </div>
   </div>
-  <button class="btn btn-pass" onclick="passQuestion()">パス / 次へ</button>
+  <button class="btn btn-pass" onclick="passQuestion()">次の問題へ進む</button>
 </div>
 
 <div id="screen-result" class="screen">
   <div class="card">
     <div class="result-label">TOTAL SCORE</div>
     <div class="result-big" id="result-score">0</div>
-    <div id="send-status" style="font-size:12px; text-align:center; color:var(--primary); margin-bottom:10px; font-weight:bold;">📊 スプレッドシートにデータ送信中...</div>
+    <div id="send-status" style="font-size:12px; text-align:center; color:var(--primary); margin-bottom:10px; font-weight:bold;">📊 スプレッドシートへ送信中...</div>
     <div class="result-grid">
       <div class="result-cell">
         <div class="val" id="res-excellent">0</div>
@@ -301,7 +348,7 @@
       </div>
       <div class="result-cell">
         <div class="val" id="res-perfect">0</div>
-        <div class="lbl">🎯 Perf</div>
+        <div class="lbl">🎯 Great</div>
       </div>
       <div class="result-cell">
         <div class="val" id="res-good">0</div>
@@ -309,24 +356,23 @@
       </div>
       <div class="result-cell">
         <div class="val" id="res-try">0</div>
-        <div class="lbl">💦 Try</div>
+        <div class="lbl">💦 Almost</div>
       </div>
     </div>
     <div class="log-section">
-      <div class="log-title">📋 結果ログ</div>
+      <div class="log-title">📋 練習結果の記録</div>
       <table class="log-table">
         <thead><tr><th>#</th><th>狙った音</th><th>最終誤差</th><th>判定</th><th>得点</th></tr></thead>
         <tbody id="log-tbody"></tbody>
       </table>
     </div>
   </div>
-  <button class="btn" onclick="location.reload()">🔁 もう一度チャレンジ</button>
+  <button class="btn" onclick="location.reload()">🔁 もう一度練習する</button>
 </div>
 
 <div class="combo-toast" id="combo-toast"></div>
 
 <script>
-// 📊 ご指定いただいたGASのURLをセットしました！
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzu7UO_LtZ1in_Ykbf39XfaC8WFATQ_3lWSnl818phr1iSMe1E8a9jz3NnGa_TqJpfG/exec";
 
 // ─── STATE ───────────────────────────────────────────────
@@ -343,6 +389,27 @@ let lastDetectedCents = null;
 const baseBflats = { "1": 932.33, "2": 466.16, "3": 233.08, "4": 116.54 };
 const PLAY_DURATION = 3000;
 
+// レベルごとの目的解説テキストの定義
+const levelPurposes = {
+  1: "💡 ユニゾンを安定して正確に合わせる練習です",
+  2: "💡 和音の響きにおいて重要な5度・4度のピッチ感覚を鍛えます",
+  3: "💡 うねりのない美しい響きを作る、純正律3度の精密な音程練習です"
+};
+
+// 評価文字列の定義（表示と温度感を統一）
+const RANKS = {
+  EXCELLENT: "Excellent ✨ (とても正確です)",
+  GREAT: "Great 🎯 (正確です)",
+  GOOD: "Good ⭕ (良好です)",
+  ALMOST: "Almost! 💦 (あと少し！)",
+  PASS: "次の問題へ"
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+  const savedName = localStorage.getItem('pitch_trainer_user_name');
+  if (savedName) document.getElementById('user-name').value = savedName;
+});
+
 // ─── SCREENS ─────────────────────────────────────────────
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -351,17 +418,71 @@ function showScreen(id) {
 
 function goToMenu() {
   userName = document.getElementById('user-name').value.trim();
-  if (!userName) { alert("研究員ネームを入力してください！"); return; }
+  if (!userName) { alert("お名前を入力してください。"); return; }
+  localStorage.setItem('pitch_trainer_user_name', userName);
   instGroup = document.getElementById('user-inst').value;
   showScreen('screen-menu');
+}
+
+// ─── HISTORY MANAGEMENT ─────────────────────────────────
+function showHistoryScreen() {
+  showScreen('screen-history');
+  renderHistoryTable();
+}
+
+function renderHistoryTable() {
+  const tbody = document.getElementById('history-tbody');
+  const emptyMsg = document.getElementById('history-empty-msg');
+  tbody.innerHTML = '';
+  
+  let history = [];
+  try {
+    history = JSON.parse(localStorage.getItem('pitch_trainer_history')) || [];
+  } catch(e) { history = []; }
+
+  if (history.length === 0) {
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  emptyMsg.style.display = 'none';
+
+  history.slice().reverse().forEach(h => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${h.date}</td><td>Lv.${h.level}</td><td><b>${h.score}点</b></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function saveToLocalStorage(score, level) {
+  let history = [];
+  try {
+    history = JSON.parse(localStorage.getItem('pitch_trainer_history')) || [];
+  } catch(e) { history = []; }
+
+  const now = new Date();
+  const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+
+  history.push({ date: dateStr, score: score, level: level });
+  localStorage.setItem('pitch_trainer_history', JSON.stringify(history));
+}
+
+function clearAllHistory() {
+  if (confirm("これまでの練習履歴をすべて消去してもよろしいですか？")) {
+    localStorage.removeItem('pitch_trainer_history');
+    renderHistoryTable();
+  }
 }
 
 // ─── START GAME ──────────────────────────────────────────
 async function startGame(lv) {
   currentLevel = lv; qNum = 0; totalScore = 0; combo = 0;
   resultLog = []; excelCount = 0; perfCount = 0; goodCount = 0; tryCount = 0;
+  
+  // 解説テキストをバナーにセット
+  document.getElementById('level-purpose-text').textContent = levelPurposes[lv];
+  
   showScreen('screen-game');
-  setPhase('準備中... マイクを起動しています 🎤', 'ready');
+  setPhase('オーディオ環境を設定しています。', 'ready');
 
   try {
     micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -373,7 +494,7 @@ async function startGame(lv) {
     source.connect(analyst);
     if (audioCtx.state === 'suspended') await audioCtx.resume();
   } catch(e) {
-    alert("マイクエラー: " + e.message);
+    alert("マイク接続エラーが発生しました: " + e.message);
     showScreen('screen-menu');
     return;
   }
@@ -384,7 +505,7 @@ async function startGame(lv) {
 function nextQuestion() {
   if (qNum >= 10) return endGame();
   qNum++;
-  document.getElementById('q-label').textContent = `Task ${qNum}/10`;
+  document.getElementById('q-label').textContent = `課題 ${qNum}/10`;
   document.getElementById('current-score').textContent = totalScore;
   document.getElementById('cent-val').textContent = '--';
   document.getElementById('cent-val').className = 'cent-display off';
@@ -406,13 +527,13 @@ function nextQuestion() {
   document.getElementById('target-note').textContent = freqToNote(targetFreq);
 
   phase = 'ref';
-  setPhase('🎵 基準音を聴いてください...', 'ready');
+  setPhase('🎵 基準音を再生しています...', 'ready');
   playRef(refFreq);
 
   setTimeout(() => {
     stopRef();
     phase = 'pitch-detect';
-    setPhase('🎤 3秒間、楽器を鳴らしてください！', 'listening');
+    setPhase('🎤 楽器を3秒間演奏してください。', 'listening');
     document.getElementById('countdown-wrap').classList.add('show');
     startTime = Date.now();
     cancelAnimationFrame(rafId);
@@ -425,7 +546,7 @@ function passQuestion() {
   phase = 'idle'; cancelAnimationFrame(rafId); stopRef();
   sendDataToGAS(qNum, "Pass", 0, 0);
   tryCount++;
-  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: '--', result: 'Pass', pts: 0 });
+  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: '--', result: RANKS.PASS, pts: 0 });
   nextQuestion();
 }
 
@@ -450,7 +571,7 @@ function pitchLoop() {
   const elapsed = Date.now() - startTime;
   const remaining = Math.max(0, PLAY_DURATION - elapsed);
 
-  document.getElementById('countdown-label').textContent = `演奏時間 残り: ${(remaining / 1000).toFixed(2)}秒`;
+  document.getElementById('countdown-label').textContent = `残り演奏時間: ${(remaining / 1000).toFixed(2)}秒`;
   document.getElementById('prog-fill').style.width = (remaining / PLAY_DURATION) * 100 + '%';
 
   const buf = new Float32Array(analyst.fftSize);
@@ -488,42 +609,49 @@ function updateUI(diff) {
 // ─── FINAL EVALUATION ───────────────────────────────────
 function evaluateFinalPitch() {
   if (lastDetectedCents === null) {
-    alert("音がうまく検知できませんでした。もう一度挑戦します！");
+    alert("音を検知できませんでした。再度測定します。");
     qNum--; nextQuestion(); return;
   }
 
   const abs = Math.abs(lastDetectedCents);
-  let rank = '';
+  let rankText = '';
+  let logRankTag = '';
   let pts = 0;
 
-  // 📈 新しいご指定の点数配分（50, 30, 20, 10 × レベル）
   if (abs <= 2) {
-    rank = 'Excellent'; pts = 50 * currentLevel; excelCount++;
+    rankText = RANKS.EXCELLENT;
+    logRankTag = `<span class="tag-excellent">Excellent ✨</span>`;
+    pts = 50 * currentLevel; excelCount++;
     confetti({ particleCount: 180, spread: 80, origin: { y: 0.6 } });
   } else if (abs <= 10) {
-    rank = 'Perfect'; pts = 30 * currentLevel; perfCount++;
+    rankText = RANKS.GREAT;
+    logRankTag = `<span class="tag-great">Great 🎯</span>`;
+    pts = 30 * currentLevel; perfCount++;
     confetti({ particleCount: 90, spread: 60 });
   } else if (abs <= 50) {
-    rank = 'Good'; pts = 20 * currentLevel; goodCount++;
+    rankText = RANKS.GOOD;
+    logRankTag = `<span class="tag-good">Good ⭕</span>`;
+    pts = 20 * currentLevel; goodCount++;
     confetti({ particleCount: 30, spread: 40 });
   } else {
-    rank = 'あと少し！'; pts = 10; tryCount++;
+    rankText = RANKS.ALMOST;
+    logRankTag = `<span class="tag-almost">Almost! 💦</span>`;
+    pts = 10; tryCount++;
   }
 
-  if (rank !== 'あと少し！') {
-    combo++; if (combo >= 3) showComboToast(`${combo} COMBO! 🔥`);
+  if (abs <= 50) {
+    combo++; if (combo >= 3) showComboToast(`${combo} 回連続で綺麗に合っています！`);
   } else {
     combo = 0;
   }
 
   totalScore += pts;
-  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: lastDetectedCents.toFixed(1), result: rank, pts });
+  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: lastDetectedCents.toFixed(1), result: logRankTag, pts });
 
-  // バックグラウンドでスプレッドシートへリアルタイム送信
-  sendDataToGAS(qNum, rank, lastDetectedCents, pts);
+  sendDataToGAS(qNum, rankText, lastDetectedCents, pts);
 
-  setPhase(`判定：【${rank}】 (${lastDetectedCents.toFixed(1)}¢)`, rank === 'あと少し！' ? 'ready' : 'listening');
-  setTimeout(() => { nextQuestion(); }, 1200);
+  setPhase(`測定結果：${rankText} (${lastDetectedCents.toFixed(1)}¢)`, abs > 50 ? 'ready' : 'listening');
+  setTimeout(() => { nextQuestion(); }, 1400);
 }
 
 function showComboToast(msg) {
@@ -558,23 +686,19 @@ function endGame() {
   phase = 'idle'; stopRef(); cancelAnimationFrame(rafId);
   if (micStream) micStream.getTracks().forEach(t => t.stop());
 
+  saveToLocalStorage(totalScore, currentLevel);
+
   document.getElementById('result-score').textContent = totalScore;
   document.getElementById('res-excellent').textContent = excelCount;
   document.getElementById('res-perfect').textContent = perfCount;
   document.getElementById('res-good').textContent = goodCount;
   document.getElementById('res-try').textContent = tryCount;
-  document.getElementById('send-status').textContent = "📊 全データがスプレッドシートに記録されました！";
+  document.getElementById('send-status').textContent = "📊 スプレッドシートへの記録が完了しました。";
 
   const tbody = document.getElementById('log-tbody'); tbody.innerHTML = '';
   resultLog.forEach(r => {
     const tr = document.createElement('tr');
-    let tag = '';
-    if (r.result === 'Excellent') tag = `<span class="tag-excellent">Excellent</span>`;
-    else if (r.result === 'Perfect') tag = `<span class="tag-perfect">Perfect</span>`;
-    else if (r.result === 'Good') tag = `<span class="tag-good">Good</span>`;
-    else tag = `<span style="color:var(--muted); font-size:12px">${r.result}</span>`;
-    
-    tr.innerHTML = `<td>${r.q}</td><td>${r.note}</td><td>${r.diff === '--' ? '--' : r.diff + '¢'}</td><td>${tag}</td><td><b>${r.pts}</b></td>`;
+    tr.innerHTML = `<td>${r.q}</td><td>${r.note}</td><td>${r.diff === '--' ? '--' : r.diff + '¢'}</td><td>${r.result}</td><td><b>${r.pts}</b></td>`;
     tbody.appendChild(tr);
   });
 
