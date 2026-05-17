@@ -20,10 +20,9 @@
       --text: #2d3436;
       --muted: #888fa3;
       
-      /* モックアップ用のカラー変数定義 */
       --color-background-primary: #ffffff;
       --color-background-secondary: #f8faff;
-      --color-background-tertiary: #eedfdf; /* メーターデモの背景 */
+      --color-background-tertiary: #eedfdf;
       --color-border-secondary: #e0e6f0;
       --color-border-tertiary: #e5e9f5;
       --color-text-primary: #2d3436;
@@ -146,8 +145,7 @@
     .phase-msg.listening { color: var(--primary); }
     .phase-msg.ready { color: var(--secondary); }
     
-    /* レベル3用の補足注記スタイル */
-    .target-hint { font-size: 12px; font-weight: 700; color: #b18c00; text-align: center; margin-bottom: 8px; min-height: 18px; }
+    .target-hint { font-size: 12px; font-weight: 700; color: #b18c00; text-align: center; margin-bottom: 8px; min-height: 18px; line-height: 1.4; padding: 0 8px; }
 
     .cent-display { font-family: 'Space Mono', monospace; font-size: 44px; font-weight: 700; min-height: 58px; color: var(--text); text-align: center; margin: 6px 0; transition: color 0.2s; }
     .cent-display.perfect { color: var(--success); }
@@ -194,9 +192,9 @@
 <div id="screen-login" class="screen active">
   <div class="card">
     <div class="app-title">おんていLab 🧪</div>
-    <div class="app-sub">楽器の音程感を科学する。<br>マイクを使って自分の音をリアルタイム分析！</div>
-    <label>研究員ネーム（氏名）</label>
-    <input type="text" id="user-name" placeholder="例：中田 花子">
+    <div class="app-sub">自分の音をリアルタイム分析！<br>生成AIとつくった吹奏楽部のための音程トレーニングアプリ</div>
+    <label>研究員ネーム（お名前）</label>
+    <input type="text" id="user-name" placeholder="例：吹奏楽 太郎">
     <label>担当楽器グループ</label>
     <select id="user-inst">
       <option value="1">① フルート (B♭5音域)</option>
@@ -204,7 +202,7 @@
       <option value="3">③ Hr・Tb・Euph・テナー・バスクラ (B♭3音域)</option>
       <option value="4">④ チューバ・コントラバス (B♭2音域)</option>
     </select>
-    <button class="btn" onclick="goToMenu()">🔬 研究室に入る</button>
+    <button class="btn" onclick="goToMenu()">🔬 ラボ（練習室）に入る</button>
   </div>
 </div>
 
@@ -215,28 +213,28 @@
     
     <div id="menu-container"></div>
   </div>
-  <button class="btn btn-back" onclick="showScreen('screen-login')">← 戻る</button>
+  <button class="btn btn-back" onclick="showScreen('screen-login')">← トップに戻る</button>
 </div>
 
 <div id="screen-game" class="screen">
   <div class="card">
     <div class="game-header">
-      <div class="q-badge" id="q-label">Task 1/10</div>
-      <div class="score-badge">Score: <span id="current-score">0</span></div>
+      <div class="q-badge" id="q-label">課題 1/10</div>
+      <div class="score-badge">スコア: <span id="current-score">0</span></div>
     </div>
     <div class="note-display">
       <div class="note-box">
-        <div class="note-label">基 準 音</div>
+        <div class="note-label">きほんの音</div>
         <div class="note-val" id="ref-note">--</div>
       </div>
       <div class="note-arrow">▶</div>
       <div class="note-box">
-        <div class="note-label">あなたの狙う音</div>
+        <div class="note-label">ねらう音</div>
         <div class="note-val" id="target-note">--</div>
       </div>
     </div>
 
-    <div class="phase-msg" id="phase-msg">準備中...</div>
+    <div class="phase-msg" id="phase-msg">じゅんび中...</div>
     <div class="target-hint" id="target-hint"></div>
     <div class="cent-display" id="cent-val">--</div>
 
@@ -250,46 +248,45 @@
     </div>
 
     <div class="hold-wrap" id="hold-wrap">
-      <div class="hold-label" id="hold-label">HOLD...</div>
+      <div class="hold-label" id="hold-label">キープしてね！</div>
       <div class="prog-bg"><div id="prog-fill" class="prog-fill"></div></div>
     </div>
   </div>
-  <button class="btn btn-pass" onclick="passQuestion()">パス / リセット</button>
+  <button class="btn btn-pass" onclick="passQuestion()">次の問題へ進む</button>
 </div>
 
 <div id="screen-result" class="screen">
   <div class="card">
-    <div class="result-label">TOTAL SCORE</div>
+    <div class="result-label">ごうけいスコア</div>
     <div class="result-big" id="result-score">0</div>
     <div class="result-grid">
       <div class="result-cell">
         <div class="val" id="res-perfect">0</div>
-        <div class="lbl">🎯 Perfect</div>
+        <div class="lbl">✨ Excellent</div>
       </div>
       <div class="result-cell">
         <div class="val" id="res-good">0</div>
-        <div class="lbl">⭕ Good</div>
+        <div class="lbl">🎯 Great / Good</div>
       </div>
       <div class="result-cell">
         <div class="val" id="res-pass">0</div>
-        <div class="lbl">⏭ Pass</div>
+        <div class="lbl">🐾 次へ進んだ数</div>
       </div>
     </div>
     <div class="log-section">
-      <div class="log-title">📋 結果ログ</div>
+      <div class="log-title">📋 今回の実験ログ</div>
       <table class="log-table">
-        <thead><tr><th>#</th><th>狙った音</th><th>誤差</th><th>判定</th><th>得点</th></tr></thead>
+        <thead><tr><th>#</th><th>ねらった音</th><th>ズレ</th><th>はんてい</th><th>ポイント</th></tr></thead>
         <tbody id="log-tbody"></tbody>
       </table>
     </div>
   </div>
-  <button class="btn" onclick="location.reload()">🔁 もう一度チャレンジ</button>
+  <button class="btn" onclick="location.reload()">🔁 もう一度チャレンジする！</button>
 </div>
 
 <div class="combo-toast" id="combo-toast"></div>
 
 <script>
-// ─── GAS API URL (データ送信用：エラーが直るまで空欄でOK) ───
 const GAS_URL = ""; 
 
 // ─── STATE ───────────────────────────────────────────────
@@ -301,25 +298,25 @@ let holdStart = null, rafId = null, currentHoldType = 0;
 let instGroup = "1";
 let resultLog = [];
 let perfCount = 0, goodCount = 0, passCount = 0;
-let openHelpId = null; // 開いているヘルプパネルのID
+let openHelpId = null; 
 
 const baseBflats = { "1": 932.33, "2": 466.16, "3": 233.08, "4": 116.54 };
 
-// ─── INTERACTIVE MENU DATA ──────────────────────────────
+// ─── 【修正：優しい言葉使いに変更】 ────────────────────────────
 const levelsData = [
   {
     id: 1,
     badge: 'Lv.1',
     title: 'ユニゾン',
-    sub: '同じ音程を正確に合わせる',
+    sub: 'おなじ音をぴったり合わせる練習',
     color: 'info',
     steps: [
-      { n: 1, text: '基準音（B♭）が<b>2.5秒間</b>鳴ります。耳でしっかり覚えましょう。' },
-      { n: 2, text: '音が止まったら、<b>同じ音</b>を楽器で吹きます。' },
-      { n: 3, text: 'メーターの針が<b>中央の緑ゾーン</b>（±2¢）に入るように調整します。' },
-      { n: 4, text: '<b>3秒間</b>ゾーン内をキープできたら大成功！' }
+      { n: 1, text: 'きほんの音（B♭）が<b>2.5秒間</b>鳴ります。耳でしっかりおぼえましょう！' },
+      { n: 2, text: '音が止まったら、<b>おなじ高さの音</b>を楽器で吹いてみてください。' },
+      { n: 3, text: 'メーターの針が<b>まんなかの緑ゾーン</b>（±2¢）に入るように合わせます。' },
+      { n: 4, text: '<b>3秒間</b>きれいにキープできたら大成功です！' }
     ],
-    note: '針が左 ➔ 低い（口を締める） / 針が右 ➔ 高い（ゆるめる）',
+    note: '針が左 ➔ 音が少し低め（口の形をそっと締めてみてね） / 針が右 ➔ 音が少し高め（息をリラックスしてゆるめてみてね）',
     targetText: null,
     ptrPos: '50%'
   },
@@ -327,15 +324,15 @@ const levelsData = [
     id: 2,
     badge: 'Lv.2',
     title: 'パワーコード',
-    sub: '5度・4度の音程を合わせる',
+    sub: '5度・4度のハーモニーを豊かに響かせる',
     color: 'warning',
     steps: [
-      { n: 1, text: '基準音が鳴ります。次に<b>5度上（または4度下）</b>のハーモニーを狙います。' },
-      { n: 2, text: '表示された音名（例：F4など）を狙ってまっすぐ吹きます。' },
-      { n: 3, text: '5度・4度は平均律のピッチで綺麗にハモるため、メーターの中心（0¢）をまっすぐ狙いましょう。' },
-      { n: 4, text: '<b>10秒キープ</b>でGood、もし±2¢以内なら<b>3秒</b>でPerfectになります！' }
+      { n: 1, text: 'きほんの音が鳴ったあと、次に<b>5度上（または4度下）</b>のハモり音をねらいます。' },
+      { n: 2, text: '画面に表示された「ねらう音」に向かって、まっすぐ息を吹き込んでみましょう。' },
+      { n: 3, text: '5度や4度はアンサンブルの骨組みになる大切な音です。まんなか（0¢）をねらって安定させてみましょう！' },
+      { n: 4, text: '<b>10秒キープ</b>でGood、もし±2¢以内に<b>3秒</b>ハマればExcellent（ボーナス点）になります！' }
     ],
-    note: '5度・4度は合奏やアンサンブルの「響きの骨格」となる重要な音程です。',
+    note: '5度・4度は合唱や吹奏楽でハーモニーの「土台」になります。ここがピタッと合うと、一気に響きが豊かになりますよ。',
     targetText: null,
     ptrPos: '50%'
   },
@@ -343,16 +340,16 @@ const levelsData = [
     id: 3,
     badge: 'Lv.3',
     title: '純正律 長3度',
-    sub: '平均律より -13.7¢ 低い音が目標',
+    sub: 'うねりのない極上の響きをつくる',
     color: 'success',
     steps: [
-      { n: 1, text: '基準音が鳴ります。目標はハモりの要となる<b>長3度上</b>の音です。' },
-      { n: 2, text: '⚠️ 純正律の長3度は、チューナーの中心より<b>【-13.7¢】低い</b>音になります。' },
-      { n: 3, text: '普通のチューナーだと「低い」と怒られますが、これがウネリのない正しい響きです。' },
-      { n: 4, text: '<b>このアプリでは自動でその「低い音」をメーターの真ん中（0¢）に補正しています！</b> 安心して真ん中を狙ってください。' }
+      { n: 1, text: 'きほんの音が鳴ったあと、ハモりの要となる<b>長3度上</b>の音をねらいます。' },
+      { n: 2, text: '💡 実は、うねりのない綺麗な和音にするには、ふつうのチューナーのまんなかより<b>【13.7¢低く】</b>吹くのが正解です。' },
+      { n: 3, text: 'ふつうのチューナーだと「低い」と表示されて不安になりますが、それが正しい響きです。' },
+      { n: 4, text: '<b>このアプリでは、あらかじめその「13.7¢低い音」をメーターのまんなか（0¢）に設定しています！</b> なので、安心して真ん中をねらってくださいね。' }
     ],
-    note: '純正律3度は「うねり」が消え去る瞬間がとても快感です。このアプリの真ん中を狙って、極上の響きを体感しましょう！',
-    targetText: '-13.7¢（純正律を0¢として計測）',
+    note: '純正律の3度は、音が合った瞬間に「うねり（濁り）」がフッと消えて、自分の楽器の音が何倍にも大きく響くような快感が味わえます。',
+    targetText: '-13.7¢（純正律を0¢として計測します）',
     ptrPos: '38%'
   }
 ];
@@ -368,7 +365,7 @@ function showScreen(id) {
 
 function goToMenu() {
   const name = document.getElementById('user-name').value.trim();
-  if (!name) { alert("研究員ネームを入力してください！"); return; }
+  if (!name) { alert("研究員ネーム（お名前）を入力してください！"); return; }
   instGroup = document.getElementById('user-inst').value;
   showScreen('screen-menu');
 }
@@ -398,7 +395,7 @@ function renderMenu() {
       html += `
         <div class="panel-wrap">
           <div class="panel-header">
-            <p class="panel-title"><i class="ti ti-info-circle" style="margin-right:4px;"></i>${lv.badge}「${lv.title}」の使い方</p>
+            <p class="panel-title"><i class="ti ti-info-circle" style="margin-right:4px;"></i>${lv.badge}「${lv.title}」のあそびかた</p>
           </div>
           <div class="panel-body">
             ${lv.steps.map(s => `
@@ -408,7 +405,7 @@ function renderMenu() {
               </div>
             `).join('')}
 
-            <div class="section-label">メーターの見方（練習デモ）</div>
+            <div class="section-label">メーターの見かた（れんしゅうデモ）</div>
             <div class="meter-demo">
               ${lv.targetText ? `<div style="color: #b18c00; font-weight:700; margin-bottom:4px;"><i class="ti ti-alert-triangle"></i> 目標：${lv.targetText}</div>` : ''}
               <div class="gauge-demo">
@@ -418,13 +415,13 @@ function renderMenu() {
               </div>
               <div class="gauge-labels-demo"><span>-50¢（低い）</span><span>±0¢（中央）</span><span>+50¢（高い）</span></div>
               <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-                <span class="badge badge-success">緑ゾーン ±2¢ ➔ Perfect</span>
-                <span class="badge badge-warn">黄ゾーン ±10¢ ➔ Good</span>
-                ${lv.id === 3 ? '<span class="badge badge-success" style="margin-top:2px; background:#e8fdf3;">★ アプリが自動で-13.7¢を真ん中に調整済み！</span>' : ''}
+                <span class="badge badge-success">緑ゾーン ±2¢ ➔ Excellent ✨</span>
+                <span class="badge badge-warn">黄ゾーン ±10¢ ➔ Great / Good 🎯</span>
+                ${lv.id === 3 ? '<span class="badge badge-success" style="margin-top:2px; background:#e8fdf3; color:#1c9e5a;">★ アプリが自動で-13.7¢をまんなかに調整してあります！</span>' : ''}
               </div>
             </div>
 
-            <div class="section-label">上達のポイント</div>
+            <div class="section-label">じょうたつへのヒント</div>
             <p style="font-size:12px; color: var(--text); line-height:1.6; background:#fff; padding:8px; border-radius:8px; border:1px solid #e0e6f0;">${lv.note}</p>
           </div>
         </div>
@@ -445,12 +442,11 @@ async function startGame(lv) {
   currentLevel = lv; qNum = 0; totalScore = 0; combo = 0;
   resultLog = []; perfCount = 0; goodCount = 0; passCount = 0;
   showScreen('screen-game');
-  setPhase('準備中... マイクを起動しています 🎤', 'ready');
+  setPhase('じゅんび中... マイクをONにしています 🎤', 'ready');
 
-  // ゲーム画面の注記表示をリセット＆セット
   const hintEl = document.getElementById('target-hint');
   if (currentLevel === 3) {
-    hintEl.innerHTML = `<i class="ti ti-alert-triangle"></i> ※純正律の長3度（平均律より -13.7¢ 低い音）を画面の中心に自動補正して計測中！`;
+    hintEl.innerHTML = `<i class="ti ti-alert-triangle"></i> ※純正律の長3度（平均律より -13.7¢ 低い音）を画面のまんなかに補正して計測しています！`;
   } else {
     hintEl.textContent = "";
   }
@@ -468,7 +464,7 @@ async function startGame(lv) {
     source.connect(analyst);
     if (audioCtx.state === 'suspended') await audioCtx.resume();
   } catch(e) {
-    alert("マイクエラー: " + e.message + "\n\n【重要】GASから直接開くとマイクが拒否されます。保存したindex.htmlを直接ダブルクリックして開くか、GitHub PagesのURLから開いてください！");
+    alert("マイクエラー: " + e.message + "\n\n【たいせつ】GASから直接開くとマイクが拒否されます。保存したindex.htmlを直接ダブルクリックして開くか、GitHub PagesのURLから開いてくださいね！");
     showScreen('screen-menu');
     return;
   }
@@ -479,7 +475,7 @@ async function startGame(lv) {
 function nextQuestion() {
   if (qNum >= 10) return endGame();
   qNum++;
-  document.getElementById('q-label').textContent = `Task ${qNum}/10`;
+  document.getElementById('q-label').textContent = `課題 ${qNum}/10`;
   document.getElementById('current-score').textContent = totalScore;
   document.getElementById('cent-val').textContent = '--';
   document.getElementById('cent-val').className = 'cent-display';
@@ -497,7 +493,6 @@ function nextQuestion() {
   } else if (currentLevel === 2) {
     targetFreq = refFreq * Math.pow(2, (Math.random() > 0.5 ? 7 : -5) / 12);
   } else {
-    // レベル3：純粋な純正律長3度周波数比(5/4倍)を計算
     targetFreq = refFreq * 1.25; 
   }
 
@@ -505,13 +500,13 @@ function nextQuestion() {
   document.getElementById('target-note').textContent = freqToNote(targetFreq);
 
   phase = 'ref';
-  setPhase('🎵 基準音を聴いてください...', 'ready');
+  setPhase('🎵 きほんの音をきいてね...', 'ready');
   playRef(refFreq);
 
   setTimeout(() => {
     stopRef();
     phase = 'pitch-detect';
-    setPhase('🎤 楽器を吹いてください！', 'listening');
+    setPhase('🎤 がっきを吹いてみよう！', 'listening');
     cancelAnimationFrame(rafId);
     pitchLoop();
   }, 2800);
@@ -523,7 +518,7 @@ function passQuestion() {
   cancelAnimationFrame(rafId);
   stopRef();
   passCount++;
-  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: '--', result: 'Pass', pts: 0 });
+  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: '--', result: '次へ進む', pts: 0 });
   nextQuestion();
 }
 
@@ -557,8 +552,6 @@ function pitchLoop() {
     while (cents > 600) cents -= 1200;
     while (cents < -600) cents += 1200;
 
-    // ★すばらしい設計アイデアの反映：レベル3のときは、すでにターゲット周波数を5/4にしているため、
-    // ここでのcents=0が「純正律ピッチそのもの」を指します。
     updateUI(cents);
     checkHold(cents);
   }
@@ -589,7 +582,7 @@ function checkHold(diff) {
   const req = currentHoldType === 2 ? 3 : 10;
   const elapsed = (Date.now() - holdStart) / 1000;
   document.getElementById('hold-label').textContent =
-    currentHoldType === 2 ? `🎯 PERFECT HOLD (${req}s)` : `⭕ GOOD HOLD (${req}s)`;
+    currentHoldType === 2 ? `✨ Excellent キープ中 (${req}秒)` : `🎯 Great / Good キープ中 (${req}秒)`;
   document.getElementById('prog-fill').style.width = Math.min(100, (elapsed / req) * 100) + '%';
 
   if (elapsed >= req) {
@@ -605,10 +598,9 @@ function onSuccess(isPerfect, finalDiff) {
   if (isPerfect) { perfCount++; confetti({ particleCount: 160, spread: 72, origin: { y: 0.6 } }); }
   else { goodCount++; confetti({ particleCount: 55, spread: 60 }); }
 
-  const resultStr = isPerfect ? 'Perfect' : 'Good';
+  const resultStr = isPerfect ? 'Excellent ✨' : 'Good ⭕';
   resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: finalDiff.toFixed(1), result: resultStr, pts });
 
-  // バックグラウンドでGASへデータ送信を試みる（GAS_URLが空欄ならスキップされます）
   if (GAS_URL) {
     const userName = document.getElementById('user-name').value.trim();
     fetch(GAS_URL, {
@@ -624,10 +616,10 @@ function onSuccess(isPerfect, finalDiff) {
         diff: finalDiff.toFixed(1),
         score: pts
       })
-    }).catch(e => console.log("GAS送信エラー（気にする必要はありません）:", e));
+    }).catch(e => console.log("GAS送信エラー:", e));
   }
 
-  if (combo >= 3) showComboToast(`${combo} COMBO! 🔥`);
+  if (combo >= 3) showComboToast(`${combo}回 れんぞく成功！ 🔥`);
   nextQuestion();
 }
 
@@ -653,11 +645,11 @@ function endGame() {
   tbody.innerHTML = '';
   resultLog.forEach(r => {
     const tr = document.createElement('tr');
-    const tag = r.result === 'Perfect'
-      ? `<span class="tag-perfect">Perfect</span>`
-      : r.result === 'Good'
+    const tag = r.result.includes('Excellent')
+      ? `<span class="tag-perfect">Excellent</span>`
+      : r.result.includes('Good')
         ? `<span class="tag-good">Good</span>`
-        : `<span style="color:var(--muted); font-size:12px">Pass</span>`;
+        : `<span style="color:var(--muted); font-size:12px">次へ進んだ</span>`;
     tr.innerHTML = `<td>${r.q}</td><td>${r.note}</td><td>${r.diff === '--' ? '--' : r.diff + '¢'}</td><td>${tag}</td><td><b>${r.pts}</b></td>`;
     tbody.appendChild(tr);
   });
@@ -698,7 +690,6 @@ function autoCorrelate(buf, sr) {
   return sr / T0;
 }
 
-// ─── FREQ → NOTE ─────────────────────────────────────────
 function freqToNote(f) {
   const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
   const i = Math.round(12 * Math.log2(f / 440)) + 69;
