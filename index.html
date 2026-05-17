@@ -98,7 +98,6 @@
     }
     .btn-back:active { box-shadow: 0 2px 0 #3d4451; }
 
-    /* ─── CLAUDE'S INTERACTIVE MENU LAYOUT ─── */
     .level-card { background: var(--card); border: 1.5px solid rgba(78,205,196,0.15); border-radius: 20px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(44,62,107,0.05); }
     .level-btn-area { flex: 1; text-align: left; background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; }
     .level-title { font-size: 16px; font-weight: 700; color: var(--secondary); margin: 0 0 2px; }
@@ -132,7 +131,6 @@
     .section-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 12px 0 6px; }
     .lv-badge { display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 10px; width: 48px; }
 
-    /* ─── GAME SCREEN ─── */
     .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .q-badge { background: var(--bg); color: var(--secondary); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1.5px solid #dde5f5; }
     .score-badge { background: linear-gradient(135deg, var(--secondary), #3d5498); color: white; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; }
@@ -167,7 +165,6 @@
     .combo-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) scale(0); background: var(--secondary); color: white; padding: 10px 24px; border-radius: 30px; font-weight: 700; font-size: 18px; box-shadow: 0 8px 24px rgba(44,62,107,0.3); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s; opacity: 0; pointer-events: none; z-index: 100; }
     .combo-toast.show { transform: translateX(-50%) scale(1); opacity: 1; }
 
-    /* ─── RESULT SCREEN ─── */
     .result-big { font-family: 'Space Mono', monospace; font-size: 72px; font-weight: 700; color: var(--secondary); text-align: center; margin: 12px 0; text-shadow: 0 4px 0 rgba(44,62,107,0.12); }
     .result-label { font-size: 13px; color: var(--muted); font-weight: 700; letter-spacing: 0.1em; text-align: center; }
     .result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
@@ -182,7 +179,9 @@
     .log-table td { padding: 7px 8px; text-align: center; border-bottom: 1px solid #f0f3fb; }
     .log-table tr:last-child td { border-bottom: none; }
     .tag-perfect { background: #e8fdf3; color: #1c9e5a; padding: 2px 8px; border-radius: 8px; font-weight: 700; font-size: 12px; }
+    .tag-great { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 8px; font-weight: 700; font-size: 12px; }
     .tag-good { background: #fff9e0; color: #c9a000; padding: 2px 8px; border-radius: 8px; font-weight: 700; font-size: 12px; }
+    .tag-almost { background: #f1f2f6; color: #57606f; padding: 2px 8px; border-radius: 8px; font-weight: 700; font-size: 12px; }
 
     .btn-pass { background: linear-gradient(135deg, #747d8c, #57606f); box-shadow: 0 4px 0 #3d4451; font-size: 14px; margin-top: 10px; width: 50%; }
   </style>
@@ -248,7 +247,7 @@
     </div>
 
     <div class="hold-wrap" id="hold-wrap">
-      <div class="hold-label" id="hold-label">キープしてね！</div>
+      <div class="hold-label" id="hold-label">測定までカウントダウン</div>
       <div class="prog-bg"><div id="prog-fill" class="prog-fill"></div></div>
     </div>
   </div>
@@ -270,7 +269,7 @@
       </div>
       <div class="result-cell">
         <div class="val" id="res-pass">0</div>
-        <div class="lbl">🐾 次へ進んだ数</div>
+        <div class="lbl">🐾 パス / Almost</div>
       </div>
     </div>
     <div class="log-section">
@@ -294,7 +293,7 @@ let audioCtx, refOsc, micStream, analyst, source;
 let currentLevel = 1, qNum = 0, totalScore = 0, combo = 0;
 let phase = 'idle';
 let refFreq, targetFreq;
-let holdStart = null, rafId = null, currentHoldType = 0;
+let rafId = null;
 let instGroup = "1";
 let resultLog = [];
 let perfCount = 0, goodCount = 0, passCount = 0;
@@ -302,7 +301,7 @@ let openHelpId = null;
 
 const baseBflats = { "1": 932.33, "2": 466.16, "3": 233.08, "4": 116.54 };
 
-// ─── 【修正：優しい言葉使いに変更】 ────────────────────────────
+// ─── LEVELS DATA ──────────────────────────────────────────
 const levelsData = [
   {
     id: 1,
@@ -312,9 +311,9 @@ const levelsData = [
     color: 'info',
     steps: [
       { n: 1, text: 'きほんの音（B♭）が<b>2.5秒間</b>鳴ります。耳でしっかりおぼえましょう！' },
-      { n: 2, text: '音が止まったら、<b>おなじ高さの音</b>を楽器で吹いてみてください。' },
-      { n: 3, text: 'メーターの針が<b>まんなかの緑ゾーン</b>（±2¢）に入るように合わせます。' },
-      { n: 4, text: '<b>3秒間</b>きれいにキープできたら大成功です！' }
+      { n: 2, text: '音が止まったら、がっきで<b>5秒間のロングトーン</b>をまっすぐ吹いてください。' },
+      { n: 3, text: '緑のバーがタイマーになっています。<b>5秒目のしゅんかん</b>の音程で一発ジャッジします！' },
+      { n: 4, text: '±2¢ならExcellent!(50点)、±10¢ならGreat!(30点)、±50¢ならGood!(20点)で、Good以上なら<b>かみふぶき</b>が舞います！' }
     ],
     note: '針が左 ➔ 音が少し低め（口の形をそっと締めてみてね） / 針が右 ➔ 音が少し高め（息をリラックスしてゆるめてみてね）',
     targetText: null,
@@ -328,9 +327,9 @@ const levelsData = [
     color: 'warning',
     steps: [
       { n: 1, text: 'きほんの音が鳴ったあと、次に<b>5度上（または4度下）</b>のハモり音をねらいます。' },
-      { n: 2, text: '画面に表示された「ねらう音」に向かって、まっすぐ息を吹き込んでみましょう。' },
-      { n: 3, text: '5度や4度はアンサンブルの骨組みになる大切な音です。まんなか（0¢）をねらって安定させてみましょう！' },
-      { n: 4, text: '<b>10秒キープ</b>でGood、もし±2¢以内に<b>3秒</b>ハマればExcellent（ボーナス点）になります！' }
+      { n: 2, text: '5秒間のカウントダウンタイマーが終わる瞬間のピッチをねらいすましましょう。' },
+      { n: 3, text: '5度や4度はアンサンブルの骨組みになる大切な音です。まんなか（0¢）をしっかりねらいましょう！' },
+      { n: 4, text: 'レベル2では、ゲットできるポイントがすべて<b>【2倍】</b>にアップします！' }
     ],
     note: '5度・4度は合唱や吹奏楽でハーモニーの「土台」になります。ここがピタッと合うと、一気に響きが豊かになりますよ。',
     targetText: null,
@@ -346,7 +345,7 @@ const levelsData = [
       { n: 1, text: 'きほんの音が鳴ったあと、ハモりの要となる<b>長3度上</b>の音をねらいます。' },
       { n: 2, text: '💡 実は、うねりのない綺麗な和音にするには、ふつうのチューナーのまんなかより<b>【13.7¢低く】</b>吹くのが正解です。' },
       { n: 3, text: 'ふつうのチューナーだと「低い」と表示されて不安になりますが、それが正しい響きです。' },
-      { n: 4, text: '<b>このアプリでは、あらかじめその「13.7¢低い音」をメーターのまんなか（0¢）に設定しています！</b> なので、安心して真ん中をねらってくださいね。' }
+      { n: 4, text: '<b>このアプリでは、あらかじめその「13.7¢低い音」をメーターのまんなか（0¢）に補正しています！</b> 5秒後にまんなかにくるよう狙ってください。レベル3はポイント<b>【3倍】</b>！' }
     ],
     note: '純正律の3度は、音が合った瞬間に「うねり（濁り）」がフッと消えて、自分の楽器の音が何倍にも大きく響くような快感が味わえます。',
     targetText: '-13.7¢（純正律を0¢として計測します）',
@@ -415,8 +414,9 @@ function renderMenu() {
               </div>
               <div class="gauge-labels-demo"><span>-50¢（低い）</span><span>±0¢（中央）</span><span>+50¢（高い）</span></div>
               <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-                <span class="badge badge-success">緑ゾーン ±2¢ ➔ Excellent ✨</span>
-                <span class="badge badge-warn">黄ゾーン ±10¢ ➔ Great / Good 🎯</span>
+                <span class="badge badge-success">緑ゾーン ±2¢ ➔ Excellent ✨ (50点)</span>
+                <span class="badge badge-info" style="background:rgba(3,105,161,0.1); color:#0369a1;">青ゾーン ±10¢ ➔ Great 🎯 (30点)</span>
+                <span class="badge badge-warn">黄ゾーン ±50¢ ➔ Good ⭕ (20点)</span>
                 ${lv.id === 3 ? '<span class="badge badge-success" style="margin-top:2px; background:#e8fdf3; color:#1c9e5a;">★ アプリが自動で-13.7¢をまんなかに調整してあります！</span>' : ''}
               </div>
             </div>
@@ -464,7 +464,7 @@ async function startGame(lv) {
     source.connect(analyst);
     if (audioCtx.state === 'suspended') await audioCtx.resume();
   } catch(e) {
-    alert("マイクエラー: " + e.message + "\n\n【たいせつ】GASから直接開くとマイクが拒否されます。保存したindex.htmlを直接ダブルクリックして開くか、GitHub PagesのURLから開いてくださいね！");
+    alert("マイクエラー: " + e.message + "\n\n【たいせつ】GASから直接開くとマイクが拒否されます。GitHub PagesのURLから開いてくださいね！");
     showScreen('screen-menu');
     return;
   }
@@ -480,9 +480,14 @@ function nextQuestion() {
   document.getElementById('cent-val').textContent = '--';
   document.getElementById('cent-val').className = 'cent-display';
   document.getElementById('pointer').style.left = '50%';
-  document.getElementById('hold-wrap').style.visibility = 'hidden';
-  document.getElementById('prog-fill').style.width = '0%';
-  holdStart = null; currentHoldType = 0;
+  
+  // タイマー表示をはじめから見えるようにしておく
+  document.getElementById('hold-wrap').style.visibility = 'visible';
+  document.getElementById('prog-fill').style.width = '100%';
+  document.getElementById('hold-label').textContent = `じゅんび中...`;
+  
+  window.countdownStart = null;
+  window.lastCents = null;
 
   const center = baseBflats[instGroup];
   const offset = Math.floor(Math.random() * 13) - 6;
@@ -506,9 +511,94 @@ function nextQuestion() {
   setTimeout(() => {
     stopRef();
     phase = 'pitch-detect';
-    setPhase('🎤 がっきを吹いてみよう！', 'listening');
+    setPhase('🎤 5秒間 まっすぐ吹いてね！', 'listening');
+    
+    // ⏰ 5秒カウントダウンタイマーの開始
+    window.countdownStart = Date.now();
+    
     cancelAnimationFrame(rafId);
     pitchLoop();
+
+    // 🎯 5秒後に一発ジャッジを下す
+    setTimeout(() => {
+      if (phase !== 'pitch-detect') return; // パスされてたら何もしない
+      phase = 'idle';
+      cancelAnimationFrame(rafId);
+
+      // 5秒目の時点のズレ（音が拾えていなかったら一応999とする）
+      const finalDiff = window.lastCents !== null ? window.lastCents : 999;
+      const abs = Math.abs(finalDiff);
+      
+      let pts = 0;
+      let resultStr = "";
+      let isPerfect = false; 
+      let isGoodOrGreat = false; 
+
+      // 🎯 ご指定の新判定ルール
+      if (abs <= 2) {
+        pts = 50 * currentLevel;
+        resultStr = 'Excellent! ✨';
+        isPerfect = true;
+        perfCount++;
+      } else if (abs <= 10) {
+        pts = 30 * currentLevel;
+        resultStr = 'Great! 🎯';
+        isGoodOrGreat = true;
+        goodCount++;
+      } else if (abs <= 50) {
+        pts = 20 * currentLevel;
+        resultStr = 'Good! ⭕';
+        isGoodOrGreat = true;
+        goodCount++; 
+      } else {
+        pts = 10 * currentLevel;
+        resultStr = 'Almost! 💦';
+      }
+
+      // スコアの加算とコンボ処理
+      totalScore += pts;
+      if (abs <= 50) {
+        combo++;
+        if (combo >= 3) showComboToast(`${combo}回 れんぞく成功！ 🔥`);
+      } else {
+        combo = 0; // Almostのときはコンボリセット
+      }
+
+      // 🎉 紙吹雪の演出（Good以上なら発動）
+      if (isPerfect) {
+        confetti({ particleCount: 160, spread: 72, origin: { y: 0.6 } }); 
+      } else if (isGoodOrGreat) {
+        confetti({ particleCount: 60, spread: 50, origin: { y: 0.6 } }); 
+      }
+
+      // 📋 結果ログへの記録
+      const diffStr = finalDiff === 999 ? '--' : finalDiff.toFixed(1);
+      resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: diffStr, result: resultStr, pts });
+
+      // 🌐 Googleスプレッドシート（GAS）へのデータ送信
+      if (GAS_URL) {
+        const userName = document.getElementById('user-name').value.trim();
+        fetch(GAS_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userName: userName,
+            instrument: instGroup,
+            level: currentLevel,
+            qNum: qNum,
+            result: resultStr,
+            diff: diffStr,
+            score: pts
+          })
+        }).catch(e => console.log("GAS送信エラー:", e));
+      }
+      
+      // 次の問題へ
+      nextQuestion();
+
+    }, 5000); // 5秒間ロングトーン測定
+
   }, 2800);
 }
 
@@ -518,7 +608,7 @@ function passQuestion() {
   cancelAnimationFrame(rafId);
   stopRef();
   passCount++;
-  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: '--', result: '次へ進む', pts: 0 });
+  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: '--', result: 'パス 🐾', pts: 0 });
   nextQuestion();
 }
 
@@ -528,10 +618,18 @@ function playRef(freq) {
   stopRef();
   refOsc = audioCtx.createOscillator();
   const g = audioCtx.createGain();
-  refOsc.type = 'triangle';
+  
+  // 【低音響対策】チューバなどの超低音でもピッチの輪郭が聞こえるよう、倍音が含まれる sawtooth(鋸歯状波)に変更
+  refOsc.type = 'sawtooth';
   refOsc.frequency.value = freq;
+  
+  // 人間の耳の特性に合わせ、低い周波数ほどボリュームを大きめに出し分ける
+  let vol = 0.08;
+  if (freq < 150) vol = 0.18;      // ④チューバなど
+  else if (freq < 300) vol = 0.13; // ③トロンボーンなど
+
   g.gain.setValueAtTime(0, audioCtx.currentTime);
-  g.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 0.05);
+  g.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.05);
   g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2.5);
   refOsc.connect(g).connect(audioCtx.destination);
   refOsc.start();
@@ -553,8 +651,19 @@ function pitchLoop() {
     while (cents < -600) cents += 1200;
 
     updateUI(cents);
-    checkHold(cents);
+    window.lastCents = cents; // 最新のピッチデータを一時保存
+  } else {
+    window.lastCents = null; // 音が拾えない時はnull
   }
+  
+  // タイマーの残り時間をプログレスバーに反映
+  if (window.countdownStart) {
+    const elapsed = (Date.now() - window.countdownStart) / 1000;
+    const remaining = Math.max(0, 5 - elapsed);
+    document.getElementById('prog-fill').style.width = (remaining / 5 * 100) + '%';
+    document.getElementById('hold-label').textContent = `⌛ 測定まであと ${remaining.toFixed(1)} 秒... ロングトーンをキープ！`;
+  }
+
   rafId = requestAnimationFrame(pitchLoop);
 }
 
@@ -565,62 +674,6 @@ function updateUI(diff) {
   el.className = 'cent-display ' + (abs <= 2 ? 'perfect' : abs <= 10 ? 'good' : 'off');
   const pos = Math.max(0, Math.min(100, 50 + (diff / 50) * 50));
   document.getElementById('pointer').style.left = pos + '%';
-}
-
-function checkHold(diff) {
-  const abs = Math.abs(diff);
-  let needed = abs <= 2 ? 2 : abs <= 10 ? 10 : 0;
-  if (needed === 0) {
-    holdStart = null; currentHoldType = 0;
-    document.getElementById('hold-wrap').style.visibility = 'hidden';
-    return;
-  }
-  if (needed !== currentHoldType) {
-    holdStart = Date.now(); currentHoldType = needed;
-    document.getElementById('hold-wrap').style.visibility = 'visible';
-  }
-  const req = currentHoldType === 2 ? 3 : 10;
-  const elapsed = (Date.now() - holdStart) / 1000;
-  document.getElementById('hold-label').textContent =
-    currentHoldType === 2 ? `✨ Excellent キープ中 (${req}秒)` : `🎯 Great / Good キープ中 (${req}秒)`;
-  document.getElementById('prog-fill').style.width = Math.min(100, (elapsed / req) * 100) + '%';
-
-  if (elapsed >= req) {
-    phase = 'idle';
-    cancelAnimationFrame(rafId);
-    onSuccess(currentHoldType === 2, diff);
-  }
-}
-
-function onSuccess(isPerfect, finalDiff) {
-  const pts = (isPerfect ? 100 : 30) * currentLevel;
-  totalScore += pts; combo++;
-  if (isPerfect) { perfCount++; confetti({ particleCount: 160, spread: 72, origin: { y: 0.6 } }); }
-  else { goodCount++; confetti({ particleCount: 55, spread: 60 }); }
-
-  const resultStr = isPerfect ? 'Excellent ✨' : 'Good ⭕';
-  resultLog.push({ q: qNum, note: freqToNote(targetFreq), diff: finalDiff.toFixed(1), result: resultStr, pts });
-
-  if (GAS_URL) {
-    const userName = document.getElementById('user-name').value.trim();
-    fetch(GAS_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userName: userName,
-        instrument: instGroup,
-        level: currentLevel,
-        qNum: qNum,
-        result: resultStr,
-        diff: finalDiff.toFixed(1),
-        score: pts
-      })
-    }).catch(e => console.log("GAS送信エラー:", e));
-  }
-
-  if (combo >= 3) showComboToast(`${combo}回 れんぞく成功！ 🔥`);
-  nextQuestion();
 }
 
 function showComboToast(msg) {
@@ -645,16 +698,20 @@ function endGame() {
   tbody.innerHTML = '';
   resultLog.forEach(r => {
     const tr = document.createElement('tr');
-    const tag = r.result.includes('Excellent')
-      ? `<span class="tag-perfect">Excellent</span>`
-      : r.result.includes('Good')
-        ? `<span class="tag-good">Good</span>`
-        : `<span style="color:var(--muted); font-size:12px">次へ進んだ</span>`;
+    let tagClass = "tag-almost";
+    let pureLabel = "Almost";
+    
+    if (r.result.includes('Excellent')) { tagClass = "tag-perfect"; pureLabel = "Excellent"; }
+    else if (r.result.includes('Great')) { tagClass = "tag-great"; pureLabel = "Great"; }
+    else if (r.result.includes('Good')) { tagClass = "tag-good"; pureLabel = "Good"; }
+    else if (r.result.includes('パス')) { tagClass = "tag-almost"; pureLabel = "パス"; }
+
+    const tag = `<span class="${tagClass}">${pureLabel}</span>`;
     tr.innerHTML = `<td>${r.q}</td><td>${r.note}</td><td>${r.diff === '--' ? '--' : r.diff + '¢'}</td><td>${tag}</td><td><b>${r.pts}</b></td>`;
     tbody.appendChild(tr);
   });
 
-  if (totalScore > 500) confetti({ particleCount: 250, spread: 120, origin: { y: 0.5 } });
+  if (totalScore > 350) confetti({ particleCount: 250, spread: 120, origin: { y: 0.5 } });
   showScreen('screen-result');
 }
 
@@ -664,7 +721,7 @@ function setPhase(msg, cls) {
   el.className = 'phase-msg ' + (cls || '');
 }
 
-// ─── AUTO CORRELATE ──────────────────────────────────────
+// ─── AUTO CORRELATE (アルゴリズム) ───────────────────────
 function autoCorrelate(buf, sr) {
   const SIZE = buf.length;
   let rms = 0;
