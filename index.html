@@ -6,7 +6,6 @@
 <title>pitch training♬</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 :root{--primary:#ff66aa;--secondary:#ff007f;--accent:#ff007f;--success:#2ed573;--perfect:#ff007f;--warn:#ff9f43;--bg-gradient:linear-gradient(135deg,#ffd6e7 0%,#ff007f 100%);--card:rgba(255,255,255,0.95);--text:#4a4a4a;--muted:#8e8e8e;--radius:32px;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -105,24 +104,23 @@ label{font-size:13px;color:var(--primary);display:block;margin-bottom:6px;margin
 }
 .intro-slide{
   position:absolute;inset:0;padding:clamp(34px,5vw,76px);
-  display:flex;flex-direction:column;
+  display:none;flex-direction:column;
   opacity:0;pointer-events:none;
-  transform:translateX(100%);
 }
 .intro-slide.intro-active{
-  opacity:1;pointer-events:auto;transform:translateX(0);
+  display:flex;
+  opacity:1;
+  pointer-events:auto;
 }
-.intro-slide.intro-enter-right{
-  animation:introEnterRight .58s cubic-bezier(.22,.8,.25,1) both;
+.intro-slide.intro-fade-out{
+  display:flex;
+  pointer-events:none;
+  animation:introFadeOut .22s ease forwards;
 }
-.intro-slide.intro-enter-left{
-  animation:introEnterLeft .58s cubic-bezier(.22,.8,.25,1) both;
-}
-.intro-slide.intro-exit-left{
-  animation:introExitLeft .50s cubic-bezier(.4,0,.2,1) both;
-}
-.intro-slide.intro-exit-right{
-  animation:introExitRight .50s cubic-bezier(.4,0,.2,1) both;
+.intro-slide.intro-fade-in{
+  display:flex;
+  pointer-events:none;
+  animation:introFadeIn .34s cubic-bezier(.22,.8,.25,1) forwards;
 }
 .intro-kicker{
   display:inline-flex;align-items:center;align-self:flex-start;
@@ -184,10 +182,14 @@ label{font-size:13px;color:var(--primary);display:block;margin-bottom:6px;margin
 .intro-pdot{width:9px;height:9px;border-radius:50%;background:#ffd2e5;transition:all .25s ease}
 .intro-pdot.intro-on{width:26px;border-radius:999px;background:#ff167f}
 .intro-corner{position:absolute;right:26px;top:22px;font-size:12px;color:#8f7b85;font-weight:800}
-@keyframes introEnterRight{from{opacity:.15;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
-@keyframes introEnterLeft{from{opacity:.15;transform:translateX(-100%)}to{opacity:1;transform:translateX(0)}}
-@keyframes introExitLeft{from{opacity:1;transform:translateX(0)}to{opacity:.1;transform:translateX(-100%)}}
-@keyframes introExitRight{from{opacity:1;transform:translateX(0)}to{opacity:.1;transform:translateX(100%)}}
+@keyframes introFadeOut{
+  from{opacity:1;transform:scale(1);filter:blur(0)}
+  to{opacity:0;transform:scale(.985);filter:blur(3px)}
+}
+@keyframes introFadeIn{
+  from{opacity:0;transform:scale(1.025);filter:blur(4px)}
+  to{opacity:1;transform:scale(1);filter:blur(0)}
+}
 @keyframes introFloatNote{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-16px) rotate(6deg)}}
 @keyframes introPresentationOut{to{opacity:0;transform:scale(1.025);visibility:hidden}}
 @media(max-width:800px){
@@ -199,8 +201,96 @@ label{font-size:13px;color:var(--primary);display:block;margin-bottom:6px;margin
   .intro-slide,.intro-bg-note,#intro-presentation.intro-closing{animation:none!important}
 }
 
+
+/* ===== 外部ライブラリ不要の花吹雪 ===== */
+#intro-confetti-layer{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:20000;
+}
+.intro-confetti-piece{
+  position:absolute;
+  top:-8vh;
+  width:12px;
+  height:22px;
+  border-radius:3px;
+  opacity:0;
+  animation:introConfettiFall var(--fall-duration) cubic-bezier(.15,.65,.35,1) forwards;
+}
+@keyframes introConfettiFall{
+  0%{
+    opacity:1;
+    transform:translate3d(0,-8vh,0) rotate(0deg) scale(1);
+  }
+  25%{
+    transform:translate3d(var(--drift1),24vh,0) rotate(220deg) scale(.95);
+  }
+  60%{
+    opacity:1;
+    transform:translate3d(var(--drift2),62vh,0) rotate(520deg) scale(1.06);
+  }
+  100%{
+    opacity:0;
+    transform:translate3d(var(--drift3),112vh,0) rotate(820deg) scale(.86);
+  }
+}
+.intro-pop-ring{
+  position:fixed;
+  left:50%;
+  top:52%;
+  width:20px;
+  height:20px;
+  margin:-10px;
+  border:8px solid rgba(255,22,127,.55);
+  border-radius:50%;
+  z-index:19999;
+  pointer-events:none;
+  animation:introPopRing .52s ease-out forwards;
+}
+@keyframes introPopRing{
+  from{opacity:1;transform:scale(.2)}
+  to{opacity:0;transform:scale(13)}
+}
+@media(prefers-reduced-motion:reduce){
+  .intro-confetti-piece,.intro-pop-ring{animation:none!important;display:none!important}
+}
+
 </style></head><body>
 
+<script>
+/* 既存コード互換用：外部confettiライブラリを使わず花吹雪を出す */
+window.confetti = window.confetti || function(options){
+  const layer=document.getElementById('intro-confetti-layer');
+  if(!layer)return;
+  const opt=options||{};
+  const count=opt.particleCount||60;
+  const colors=['#ff167f','#ff63ad','#ffd34e','#63d8ff','#8d7cff','#73e6a1','#ffffff'];
+  const origin=opt.origin||{x:.5,y:.5};
+  for(let i=0;i<count;i++){
+    const p=document.createElement('span');
+    p.className='intro-confetti-piece';
+    const x=((origin.x ?? .5)*100)+(-10+Math.random()*20);
+    const duration=1.4+Math.random()*1.4;
+    p.style.left=Math.max(0,Math.min(100,x))+'%';
+    p.style.top=((origin.y ?? .5)*100)+'%';
+    p.style.width=(6+Math.random()*8)+'px';
+    p.style.height=(9+Math.random()*16)+'px';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.setProperty('--fall-duration',duration+'s');
+    p.style.setProperty('--drift1',(-90+Math.random()*180)+'px');
+    p.style.setProperty('--drift2',(-130+Math.random()*260)+'px');
+    p.style.setProperty('--drift3',(-180+Math.random()*360)+'px');
+    if(Math.random()>.55)p.style.borderRadius='50%';
+    layer.appendChild(p);
+    setTimeout(()=>p.remove(),(duration+0.4)*1000);
+  }
+};
+</script>
+
+
+<div id="intro-confetti-layer" aria-hidden="true"></div>
 <div id="intro-presentation">
   <div class="intro-bg-note intro-n1">♪</div>
   <div class="intro-bg-note intro-n2">♬</div>
@@ -495,11 +585,46 @@ label{font-size:13px;color:var(--primary);display:block;margin-bottom:6px;margin
   }
 
   function introCelebrate(){
-    if(typeof confetti!=='function')return;
-    confetti({particleCount:140,spread:90,startVelocity:48,origin:{y:.72}});
-    setTimeout(()=>confetti({particleCount:80,spread:110,startVelocity:44,origin:{x:.18,y:.64}}),120);
-    setTimeout(()=>confetti({particleCount:80,spread:110,startVelocity:44,origin:{x:.82,y:.64}}),220);
-    setTimeout(()=>confetti({particleCount:60,spread:120,startVelocity:38,origin:{x:.50,y:.45}}),340);
+    const layer=document.getElementById('intro-confetti-layer');
+    if(!layer)return;
+
+    const colors=['#ff167f','#ff63ad','#ffd34e','#63d8ff','#8d7cff','#73e6a1','#ffffff'];
+    const total=170;
+
+    // 「パァン」とした瞬間感を出すリング
+    const ring=document.createElement('div');
+    ring.className='intro-pop-ring';
+    document.body.appendChild(ring);
+    setTimeout(()=>ring.remove(),650);
+
+    for(let i=0;i<total;i++){
+      const p=document.createElement('span');
+      p.className='intro-confetti-piece';
+
+      const left=4+Math.random()*92;
+      const delay=Math.random()*0.28;
+      const duration=1.7+Math.random()*1.5;
+      const w=7+Math.random()*8;
+      const h=10+Math.random()*18;
+      const d1=(-70+Math.random()*140)+'px';
+      const d2=(-110+Math.random()*220)+'px';
+      const d3=(-150+Math.random()*300)+'px';
+
+      p.style.left=left+'%';
+      p.style.width=w+'px';
+      p.style.height=h+'px';
+      p.style.background=colors[Math.floor(Math.random()*colors.length)];
+      p.style.setProperty('--fall-duration',duration+'s');
+      p.style.setProperty('--drift1',d1);
+      p.style.setProperty('--drift2',d2);
+      p.style.setProperty('--drift3',d3);
+      p.style.animationDelay=delay+'s';
+
+      if(Math.random()>.55)p.style.borderRadius='50%';
+
+      layer.appendChild(p);
+      setTimeout(()=>p.remove(),(delay+duration+0.2)*1000);
+    }
   }
 
   function introGoTo(index){
@@ -507,25 +632,29 @@ label{font-size:13px;color:var(--primary);display:block;margin-bottom:6px;margin
     introAnimating=true;
     introStopTone();
 
-    const forward=index>introCurrent;
     const old=introSlides[introCurrent];
     const next=introSlides[index];
 
-    old.classList.remove('intro-enter-right','intro-enter-left');
-    next.classList.remove('intro-exit-left','intro-exit-right');
-
-    old.classList.add(forward?'intro-exit-left':'intro-exit-right');
-    next.classList.add('intro-active',forward?'intro-enter-right':'intro-enter-left');
+    // 1. 現在の画面だけを短くフェードアウト
+    old.classList.remove('intro-fade-in');
+    old.classList.add('intro-fade-out');
 
     setTimeout(()=>{
-      old.classList.remove('intro-active','intro-exit-left','intro-exit-right');
-      next.classList.remove('intro-enter-right','intro-enter-left');
+      // 2. 完全に消えてから次の画面を表示
+      old.classList.remove('intro-active','intro-fade-out');
+
+      next.classList.add('intro-active','intro-fade-in');
       introCurrent=index;
       introBuildProgress();
-      introAnimating=false;
 
-      if(index===3 || index===6)introCelebrate();
-    },580);
+      // 3. 入場アニメーション終了後に通常状態へ
+      setTimeout(()=>{
+        next.classList.remove('intro-fade-in');
+        introAnimating=false;
+
+        if(index===3 || index===6)introCelebrate();
+      },360);
+    },230);
   }
 
   document.querySelectorAll('.intro-next').forEach(btn=>{
