@@ -73,7 +73,262 @@ label{font-size:13px;color:var(--primary);display:block;margin-bottom:6px;margin
   transition:transform .15s ease,background .2s ease;
 }
 .level-help-btn:active{transform:scale(.94);}
+
+/* ===== 発表導入クイズ：一体型プレゼン ===== */
+#intro-presentation{
+  position:fixed;inset:0;z-index:10000;
+  background:
+    radial-gradient(circle at 15% 15%,rgba(255,255,255,.58),transparent 32%),
+    radial-gradient(circle at 88% 18%,rgba(255,255,255,.30),transparent 28%),
+    linear-gradient(135deg,#ffd4e7 0%,#ff74ba 48%,#ff167f 100%);
+  display:flex;align-items:center;justify-content:center;padding:22px;
+  overflow:hidden;
+}
+#intro-presentation.intro-closing{
+  animation:introPresentationOut .65s cubic-bezier(.4,0,.2,1) forwards;
+}
+.intro-bg-note{
+  position:absolute;color:rgba(255,255,255,.28);font-size:52px;font-weight:900;
+  pointer-events:none;animation:introFloatNote 8s ease-in-out infinite;
+}
+.intro-n1{left:5%;top:10%;animation-delay:-1s}
+.intro-n2{right:7%;top:17%;animation-delay:-3s}
+.intro-n3{left:9%;bottom:10%;animation-delay:-5s}
+.intro-n4{right:10%;bottom:9%;animation-delay:-7s}
+.intro-deck{
+  width:min(1180px,100%);height:min(665px,calc(100vh - 44px));
+  background:rgba(255,255,255,.97);
+  border:2px solid rgba(255,255,255,.78);
+  border-radius:34px;
+  box-shadow:0 24px 70px rgba(180,0,75,.18);
+  position:relative;overflow:hidden;
+}
+.intro-slide{
+  position:absolute;inset:0;padding:clamp(34px,5vw,76px);
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transform:translateX(100%);
+}
+.intro-slide.intro-active{
+  opacity:1;pointer-events:auto;transform:translateX(0);
+}
+.intro-slide.intro-enter-right{
+  animation:introEnterRight .58s cubic-bezier(.22,.8,.25,1) both;
+}
+.intro-slide.intro-enter-left{
+  animation:introEnterLeft .58s cubic-bezier(.22,.8,.25,1) both;
+}
+.intro-slide.intro-exit-left{
+  animation:introExitLeft .50s cubic-bezier(.4,0,.2,1) both;
+}
+.intro-slide.intro-exit-right{
+  animation:introExitRight .50s cubic-bezier(.4,0,.2,1) both;
+}
+.intro-kicker{
+  display:inline-flex;align-items:center;align-self:flex-start;
+  padding:8px 14px;border-radius:999px;border:2px solid #ffc8df;
+  background:#fff4f9;color:#ff167f;font-size:14px;font-weight:900;
+}
+.intro-center{margin:auto;text-align:center;width:min(920px,100%)}
+.intro-hero-title{
+  margin:0 0 18px;font-size:clamp(44px,6vw,86px);line-height:1.08;
+  letter-spacing:-.035em;color:#ff167f;font-weight:900;
+}
+.intro-hero-sub{margin:0;font-size:clamp(18px,2vw,28px);font-weight:800;color:#8f7b85}
+.intro-question-title{
+  margin:18px 0 22px;font-size:clamp(38px,5vw,70px);line-height:1.12;
+  font-weight:900;color:#ff167f;text-align:center;letter-spacing:-.025em;
+}
+.intro-question-desc{
+  width:min(920px,100%);margin:0 auto;text-align:center;
+  font-size:clamp(18px,2.2vw,29px);line-height:1.85;font-weight:800;color:#4a3d45;
+}
+.intro-question-desc b,.intro-answer-text b{color:#ff167f}
+.intro-actions{margin-top:auto;display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.intro-btn{
+  border:none;border-radius:999px;padding:16px 30px;min-width:190px;
+  font:inherit;font-size:18px;font-weight:900;cursor:pointer;
+  transition:transform .14s ease,box-shadow .2s ease;
+}
+.intro-btn:active{transform:scale(.97)}
+.intro-primary{color:#fff;background:linear-gradient(135deg,#ff63ad,#ff167f);box-shadow:0 10px 28px rgba(255,22,127,.23)}
+.intro-dark{background:#6f788a;color:#fff}
+.intro-sound-wrap{margin:auto;width:min(860px,100%);display:grid;gap:18px}
+.intro-sound-btn{
+  width:100%;padding:22px 26px;border-radius:24px;border:none;
+  font:inherit;font-size:clamp(20px,2.1vw,28px);font-weight:900;cursor:pointer;
+  transition:transform .14s ease,box-shadow .2s ease;
+}
+.intro-sound-btn:active{transform:scale(.985)}
+.intro-ref{color:#ff167f;background:#fff;border:3px solid #ff167f}
+.intro-choice{color:#fff;background:linear-gradient(135deg,#ff63ad,#ff167f);box-shadow:0 8px 22px rgba(255,22,127,.18)}
+.intro-vote-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+.intro-vote{
+  border:2px solid #ffc8df;background:#fff8fb;border-radius:22px;padding:14px;
+  text-align:center;font-size:18px;font-weight:900;
+}
+.intro-vote b{display:block;color:#ff167f;font-size:34px}
+.intro-answer-big{
+  font-size:clamp(54px,7vw,96px);line-height:1;color:#ff167f;font-weight:900;margin-bottom:26px;
+}
+.intro-answer-text{font-size:clamp(20px,2.2vw,30px);line-height:1.8;font-weight:800}
+.intro-bridge{
+  margin:26px auto 0;width:min(900px,100%);padding:22px 28px;border-radius:24px;
+  background:linear-gradient(135deg,#fff1f7,#fff);border:2px solid #ffc8df;
+  font-size:clamp(18px,2vw,27px);line-height:1.8;font-weight:800;
+}
+.intro-progress{
+  position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+  display:flex;gap:8px;z-index:5;
+}
+.intro-pdot{width:9px;height:9px;border-radius:50%;background:#ffd2e5;transition:all .25s ease}
+.intro-pdot.intro-on{width:26px;border-radius:999px;background:#ff167f}
+.intro-corner{position:absolute;right:26px;top:22px;font-size:12px;color:#8f7b85;font-weight:800}
+@keyframes introEnterRight{from{opacity:.15;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
+@keyframes introEnterLeft{from{opacity:.15;transform:translateX(-100%)}to{opacity:1;transform:translateX(0)}}
+@keyframes introExitLeft{from{opacity:1;transform:translateX(0)}to{opacity:.1;transform:translateX(-100%)}}
+@keyframes introExitRight{from{opacity:1;transform:translateX(0)}to{opacity:.1;transform:translateX(100%)}}
+@keyframes introFloatNote{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-16px) rotate(6deg)}}
+@keyframes introPresentationOut{to{opacity:0;transform:scale(1.025);visibility:hidden}}
+@media(max-width:800px){
+  #intro-presentation{padding:10px}
+  .intro-deck{height:calc(100vh - 20px);border-radius:24px}
+  .intro-slide{padding:28px 20px 44px}
+}
+@media(prefers-reduced-motion:reduce){
+  .intro-slide,.intro-bg-note,#intro-presentation.intro-closing{animation:none!important}
+}
+
 </style></head><body>
+
+<div id="intro-presentation">
+  <div class="intro-bg-note intro-n1">♪</div>
+  <div class="intro-bg-note intro-n2">♬</div>
+  <div class="intro-bg-note intro-n3">♭</div>
+  <div class="intro-bg-note intro-n4">♫</div>
+
+  <main class="intro-deck">
+    <div class="intro-corner">pitch training♬ 研究発表</div>
+
+    <section class="intro-slide intro-active" data-intro-slide="0">
+      <div class="intro-center">
+        <div class="intro-kicker">OPENING QUIZ</div>
+        <h1 class="intro-hero-title">耳で見抜け！<br>音の聞き分けクイズ</h1>
+        <p class="intro-hero-sub">まずはチャレンジしてみましょう！</p>
+      </div>
+      <div class="intro-actions">
+        <button class="intro-btn intro-primary intro-next">スタート →</button>
+      </div>
+    </section>
+
+    <section class="intro-slide" data-intro-slide="1">
+      <div class="intro-kicker">QUESTION 1</div>
+      <div class="intro-center">
+        <h2 class="intro-question-title">同じ「ド」はどっち？</h2>
+        <p class="intro-question-desc">
+          まず基準音の「ド」を聴きます。<br>
+          A・Bを聴いて、<b>基準音と同じ高さ</b>だと思う方に<br>
+          手を挙げてください！
+        </p>
+      </div>
+      <div class="intro-actions">
+        <button class="intro-btn intro-primary intro-next">次へ →</button>
+      </div>
+    </section>
+
+    <section class="intro-slide" data-intro-slide="2">
+      <div class="intro-kicker">QUESTION 1</div>
+      <div class="intro-sound-wrap">
+        <button class="intro-sound-btn intro-ref" data-intro-tone="c4">① 基準音「ド」を聴く ♪</button>
+        <button class="intro-sound-btn intro-choice" data-intro-tone="c4">A を聴く</button>
+        <button class="intro-sound-btn intro-choice" data-intro-tone="e4">B を聴く</button>
+        <div class="intro-vote-row">
+          <div class="intro-vote"><b>A</b>だと思う人？</div>
+          <div class="intro-vote"><b>B</b>だと思う人？</div>
+        </div>
+      </div>
+      <div class="intro-actions">
+        <button class="intro-btn intro-primary intro-next intro-correct-trigger">正解は… →</button>
+      </div>
+    </section>
+
+    <section class="intro-slide" data-intro-slide="3">
+      <div class="intro-center">
+        <div class="intro-answer-big">正解は A！</div>
+        <div class="intro-answer-text">Aは基準音と同じ「ド」。<br>Bは「ミ」です。</div>
+      </div>
+      <div class="intro-actions">
+        <button class="intro-btn intro-primary intro-next">第2問へ →</button>
+      </div>
+    </section>
+
+    <section class="intro-slide" data-intro-slide="4">
+      <div class="intro-kicker">QUESTION 2</div>
+      <div class="intro-center">
+        <h2 class="intro-question-title">今度も同じ「ド」はどっち？</h2>
+        <p class="intro-question-desc">
+          今度はどちらも「ド」に聞こえます。<br>
+          A・Bのうち、<b>基準音とまったく同じピッチ</b>なのはどちらでしょう？<br>
+          こちらも手を挙げてください！
+        </p>
+      </div>
+      <div class="intro-actions">
+        <button class="intro-btn intro-primary intro-next">次へ →</button>
+      </div>
+    </section>
+
+    <section class="intro-slide" data-intro-slide="5">
+      <div class="intro-kicker">QUESTION 2</div>
+      <div class="intro-sound-wrap">
+        <button class="intro-sound-btn intro-ref" data-intro-tone="c4">① 基準音「ド」を聴く ♪</button>
+        <button class="intro-sound-btn intro-choice" data-intro-tone="c4plus20">A を聴く</button>
+        <button class="intro-sound-btn intro-choice" data-intro-tone="c4">B を聴く</button>
+        <div class="intro-vote-row">
+          <div class="intro-vote"><b>A</b>だと思う人？</div>
+          <div class="intro-vote"><b>B</b>だと思う人？</div>
+        </div>
+      </div>
+      <div class="intro-actions">
+        <button class="intro-btn intro-primary intro-next intro-correct-trigger">正解は… →</button>
+      </div>
+    </section>
+
+    <section class="intro-slide" data-intro-slide="6">
+      <div class="intro-center">
+        <div class="intro-answer-big">正解は B！</div>
+        <div class="intro-answer-text">
+          Aは基準音より <b>20セント高い「ド」</b>。<br>
+          Bは基準音と同じピッチの「ド」です。
+        </div>
+      </div>
+      <div class="intro-actions">
+        <button class="intro-btn intro-primary intro-next">この研究の話へ →</button>
+      </div>
+    </section>
+
+    <section class="intro-slide" data-intro-slide="7">
+      <div class="intro-center">
+        <h2 class="intro-question-title">どうでしたか？</h2>
+        <p class="intro-question-desc">
+          1問目は分かっても、2問目は迷った人も多いはず。<br>
+          ここからが今回の研究のスタートです。
+        </p>
+        <div class="intro-bridge">
+          吹奏楽では、このような「ほんの少しの音の高さの違い」を聴き分けながら、
+          周りの音に合わせていく必要があります。<br><br>
+          そこで私は、<b>音程を耳で感じながら、楽しく練習できるWebアプリ
+          「pitch training♬」</b>を作りました。
+        </div>
+      </div>
+      <div class="intro-actions">
+        <button class="intro-btn intro-primary" id="intro-start-app">pitch training♬ を開く →</button>
+      </div>
+    </section>
+
+    <div class="intro-progress" id="intro-progress"></div>
+  </main>
+</div>
+
 <div id="notes-container"></div>
 <div id="screen-login" class="screen active"> <div class="card"> <div class="app-title">pitch training♬</div> <div class="app-sub">3秒間のまっすぐなロングトーンで、<br>きれいな音程をマスターしよう！</div> <label>研究員ネーム（おなまえ）</label> <input type="text" id="user-name" placeholder="なまえをいれてね"> <label>担当楽器・声部</label> <select id="user-inst">
 <optgroup label="吹奏楽">
@@ -173,6 +428,140 @@ label{font-size:13px;color:var(--primary);display:block;margin-bottom:6px;margin
 <button class="btn btn-back" style="width:60%; margin:0 auto 20px; display:block;" onclick="quitGame()">練習を終了する ⏹️</button>
 </div>
 <div id="screen-result" class="screen"> <div class="card"> <div class="result-label" style="text-align:center; font-weight:900; color:var(--primary);">TOTAL SCORE</div> <div class="result-big" id="result-score">0</div> <div class="result-grid"> <div class="result-cell"><div class="val" id="res-excellent">0</div><div class="lbl">Excel</div></div> <div class="result-cell"><div class="val" id="res-perfect">0</div><div class="lbl">Great</div></div> <div class="result-cell"><div class="val" id="res-good">0</div><div class="lbl">Good</div></div> <div class="result-cell"><div class="val" id="res-try">0</div><div class="lbl">Almost</div></div> </div> <div class="log-section"> <table class="log-table"> <thead><tr><th>#</th><th>音名</th><th>誤差</th><th>判定</th><th>点</th></tr></thead> <tbody id="log-tbody"></tbody> </table> </div> </div> <button class="btn" onclick="location.reload()">もういちど練習する 🔁</button></div>
+
+<script>
+(function(){
+  let introAudioCtx=null;
+  let introActiveNodes=[];
+  let introCurrent=0;
+  let introAnimating=false;
+
+  const introSlides=[...document.querySelectorAll('.intro-slide')];
+  const introProgress=document.getElementById('intro-progress');
+  const introRoot=document.getElementById('intro-presentation');
+
+  const INTRO_C4=523.251131;
+  const INTRO_E4=659.255114;
+  const INTRO_C4_PLUS20=INTRO_C4*Math.pow(2,20/1200);
+  const introTones={c4:INTRO_C4,e4:INTRO_E4,c4plus20:INTRO_C4_PLUS20};
+
+  function introBuildProgress(){
+    introProgress.innerHTML='';
+    introSlides.forEach((_,i)=>{
+      const d=document.createElement('span');
+      d.className='intro-pdot'+(i===introCurrent?' intro-on':'');
+      introProgress.appendChild(d);
+    });
+  }
+
+  function introStopTone(){
+    introActiveNodes.forEach(n=>{
+      try{n.stop();}catch(e){}
+      try{n.disconnect();}catch(e){}
+    });
+    introActiveNodes=[];
+  }
+
+  function introGetCtx(){
+    if(!introAudioCtx)introAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(introAudioCtx.state==='suspended')introAudioCtx.resume();
+    return introAudioCtx;
+  }
+
+  function introPlayTone(freq){
+    introStopTone();
+    const ctx=introGetCtx();
+    const now=ctx.currentTime;
+    const master=ctx.createGain();
+    master.gain.setValueAtTime(.0001,now);
+    master.gain.exponentialRampToValueAtTime(.55,now+.03);
+    master.gain.setValueAtTime(.55,now+1.35);
+    master.gain.exponentialRampToValueAtTime(.0001,now+1.75);
+    master.connect(ctx.destination);
+
+    [[1,1],[2,.20],[3,.08]].forEach(([ratio,amp])=>{
+      const o=ctx.createOscillator();
+      const g=ctx.createGain();
+      o.type='sine';
+      o.frequency.value=freq*ratio;
+      g.gain.value=amp;
+      o.connect(g);
+      g.connect(master);
+      o.start(now);
+      o.stop(now+1.8);
+      introActiveNodes.push(o,g);
+    });
+    introActiveNodes.push(master);
+  }
+
+  function introCelebrate(){
+    if(typeof confetti!=='function')return;
+    confetti({particleCount:140,spread:90,startVelocity:48,origin:{y:.72}});
+    setTimeout(()=>confetti({particleCount:80,spread:110,startVelocity:44,origin:{x:.18,y:.64}}),120);
+    setTimeout(()=>confetti({particleCount:80,spread:110,startVelocity:44,origin:{x:.82,y:.64}}),220);
+    setTimeout(()=>confetti({particleCount:60,spread:120,startVelocity:38,origin:{x:.50,y:.45}}),340);
+  }
+
+  function introGoTo(index){
+    if(introAnimating || index<0 || index>=introSlides.length || index===introCurrent)return;
+    introAnimating=true;
+    introStopTone();
+
+    const forward=index>introCurrent;
+    const old=introSlides[introCurrent];
+    const next=introSlides[index];
+
+    old.classList.remove('intro-enter-right','intro-enter-left');
+    next.classList.remove('intro-exit-left','intro-exit-right');
+
+    old.classList.add(forward?'intro-exit-left':'intro-exit-right');
+    next.classList.add('intro-active',forward?'intro-enter-right':'intro-enter-left');
+
+    setTimeout(()=>{
+      old.classList.remove('intro-active','intro-exit-left','intro-exit-right');
+      next.classList.remove('intro-enter-right','intro-enter-left');
+      introCurrent=index;
+      introBuildProgress();
+      introAnimating=false;
+
+      if(index===3 || index===6)introCelebrate();
+    },580);
+  }
+
+  document.querySelectorAll('.intro-next').forEach(btn=>{
+    btn.addEventListener('click',()=>introGoTo(introCurrent+1));
+  });
+
+  document.querySelectorAll('[data-intro-tone]').forEach(btn=>{
+    btn.addEventListener('click',()=>introPlayTone(introTones[btn.dataset.introTone]));
+  });
+
+  document.getElementById('intro-start-app').addEventListener('click',()=>{
+    introStopTone();
+    introRoot.classList.add('intro-closing');
+    setTimeout(()=>{
+      introRoot.style.display='none';
+      document.getElementById('user-name')?.focus();
+    },680);
+  });
+
+  document.addEventListener('keydown',(e)=>{
+    if(introRoot.style.display==='none')return;
+    const active=document.activeElement;
+    if(active && active.dataset && active.dataset.introTone)return;
+    if(e.key==='ArrowRight' || e.key===' '){
+      e.preventDefault();
+      introGoTo(introCurrent+1);
+    }else if(e.key==='ArrowLeft'){
+      e.preventDefault();
+      introGoTo(introCurrent-1);
+    }
+  });
+
+  introBuildProgress();
+})();
+</script>
+
 <script>
 const GAS_URL="https://script.google.com/macros/s/AKfycbx1WFxsM1_fJZIdnWWQ1UmiLUmtx8Nl39ziPVmSjhFwVZplTYlEJh0K6wUpN30RXOg/exec";
 const instrumentSettings={
